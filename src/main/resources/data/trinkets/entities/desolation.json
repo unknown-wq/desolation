@@ -1,9 +1,0 @@
-{
-  "entities": [
-    "player"
-  ],
-  "slots": [
-    "head/face",
-    "head/face_lower"
-  ]
-}
