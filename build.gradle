@@ -3,12 +3,12 @@ plugins {
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_25
-targetCompatibility = JavaVersion.VERSION_25
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
 
 repositories {
 	maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
@@ -37,8 +37,7 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	// Minecraft 26.1 is unobfuscated: use official Mojang mappings (Yarn is discontinued).
-	mappings loom.officialMojangMappings()
+	// Minecraft 26.1+ is unobfuscated and Yarn is discontinued: no mappings line is needed.
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
@@ -93,12 +92,14 @@ fabricApi {
 }
 
 java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 	withSourcesJar()
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}" }
+		rename { "${it}_${project.archives_base_name}" }
 	}
 }
 
