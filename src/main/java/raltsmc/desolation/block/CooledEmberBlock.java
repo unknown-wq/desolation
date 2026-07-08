@@ -1,48 +1,44 @@
 package raltsmc.desolation.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FireChargeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.FireChargeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
 import raltsmc.desolation.registry.DesolationBlocks;
 
 public class CooledEmberBlock extends Block {
-    public CooledEmberBlock(Settings settings) {
-        super(settings);
+    public CooledEmberBlock(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        Hand hand = player.getActiveHand();
-        ItemStack stack = player.getStackInHand(hand);
-
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (stack.getItem() == Items.FLINT_AND_STEEL) {
-            world.playSound(player, pos, SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0f, world.getRandom().nextFloat() * 0.4f + 0.8f);
-            world.setBlockState(pos, DesolationBlocks.EMBER_BLOCK.getDefaultState());
-            world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-            stack.damage(1, player, LivingEntity.getSlotForHand(hand));
+            world.playSound(player, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0f, world.getRandom().nextFloat() * 0.4f + 0.8f);
+            world.setBlockAndUpdate(pos, DesolationBlocks.EMBER_BLOCK.defaultBlockState());
+            world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+            stack.hurtAndBreak(1, player, hand);
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         } else if (stack.getItem() == Items.FIRE_CHARGE) {
-            ((FireChargeItem) Items.FIRE_CHARGE).playUseSound(world, pos);
-            world.setBlockState(pos, DesolationBlocks.EMBER_BLOCK.getDefaultState());
-            world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-            stack.decrement(1);
+            ((FireChargeItem) Items.FIRE_CHARGE).playSound(world, pos);
+            world.setBlockAndUpdate(pos, DesolationBlocks.EMBER_BLOCK.defaultBlockState());
+            world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+            stack.shrink(1);
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return super.onUse(state, world, pos, player, hit);
+        return super.useItemOn(stack, state, world, pos, player, hand, hit);
     }
 }

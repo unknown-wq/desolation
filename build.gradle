@@ -51,9 +51,6 @@ dependencies {
 
 	include(api("com.terraformersmc:biolith-fabric:${biolith_version}"))
 
-	include(api("com.terraformersmc.terraform-api:terraform-tree-api-v1:${project.terraform_api_version}"))
-	include(api("com.terraformersmc.terraform-api:terraform-wood-api-v1:${project.terraform_api_version}"))
-
 	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 

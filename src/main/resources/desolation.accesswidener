@@ -1,4 +1,5 @@
-accessWidener   v1  official
+accessWidener	v1	official
 
-accessible  method  net/minecraft/block/BlockSetType register (Lnet/minecraft/block/BlockSetType;)Lnet/minecraft/block/BlockSetType;
-accessible  method  net/minecraft/item/FireChargeItem playUseSound (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V
+accessible	method	net/minecraft/world/level/block/state/properties/BlockSetType register (Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;
+accessible	method	net/minecraft/world/item/FireChargeItem playSound (Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V
+accessible	method	net/minecraft/world/entity/SpawnPlacements register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/SpawnPlacementType;Lnet/minecraft/world/level/levelgen/Heightmap$Types;Lnet/minecraft/world/entity/SpawnPlacements$SpawnPredicate;)V

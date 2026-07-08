@@ -1,11 +1,13 @@
 package raltsmc.desolation.mixin.entity;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,11 +22,11 @@ import java.util.Map;
 public abstract class LivingEntityMixin {
     @Shadow
     @Final
-    private Map<StatusEffect, StatusEffectInstance> activeStatusEffects;
+    private Map<Holder<MobEffect>, MobEffectInstance> activeEffects;
 
-    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
-    public void desolation$negateDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
-        if (source.getTypeRegistryEntry().isIn(DamageTypeTags.IS_FIRE) && this.activeStatusEffects.containsKey(DesolationStatusEffects.CINDER_SOUL)) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    public void desolation$negateDamage(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
+        if (source.is(DamageTypeTags.IS_FIRE) && this.activeEffects.containsKey(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(DesolationStatusEffects.CINDER_SOUL))) {
             info.setReturnValue(false);
         }
     }

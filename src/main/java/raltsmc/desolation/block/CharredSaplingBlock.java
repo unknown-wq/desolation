@@ -1,20 +1,20 @@
 package raltsmc.desolation.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.block.SaplingGenerator;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.state.BlockState;
 import raltsmc.desolation.registry.DesolationBlocks;
 
 public class CharredSaplingBlock extends SaplingBlock {
-    public CharredSaplingBlock(SaplingGenerator generator, Settings settings) {
-        super(generator, settings);
+    public CharredSaplingBlock(TreeGrower generator, Properties properties) {
+        super(generator, properties);
     }
 
     @Override
-    protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-        return floor.isIn(BlockTags.DIRT) || floor.isOf(DesolationBlocks.CHARRED_SOIL);
+    protected boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
+        return floor.is(BlockTags.DIRT) || floor.is(DesolationBlocks.CHARRED_SOIL);
     }
 }

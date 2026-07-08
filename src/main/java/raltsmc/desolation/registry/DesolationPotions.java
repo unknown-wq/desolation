@@ -1,21 +1,22 @@
 package raltsmc.desolation.registry;
 
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import raltsmc.desolation.Desolation;
 
 public class DesolationPotions {
-    public static final Potion CINDER_SOUL = register("cinder_soul", new Potion("cinder_soul", new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(DesolationStatusEffects.CINDER_SOUL), 1200)));
-    public static final Potion LONG_CINDER_SOUL = register("long_cinder_soul", new Potion("cinder_soul", new StatusEffectInstance(Registries.STATUS_EFFECT.getEntry(DesolationStatusEffects.CINDER_SOUL), 3600)));
-    public static final Potion BLINDNESS = register("blindness", new Potion("blindness", new StatusEffectInstance(StatusEffects.BLINDNESS, 1200)));
-    public static final Potion LONG_BLINDNESS = register("long_blindness", new Potion("blindness", new StatusEffectInstance(StatusEffects.BLINDNESS, 3600)));
+    public static final Potion CINDER_SOUL = register("cinder_soul", new Potion("cinder_soul", new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(DesolationStatusEffects.CINDER_SOUL), 1200)));
+    public static final Potion LONG_CINDER_SOUL = register("long_cinder_soul", new Potion("cinder_soul", new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(DesolationStatusEffects.CINDER_SOUL), 3600)));
+    public static final Potion BLINDNESS = register("blindness", new Potion("blindness", new MobEffectInstance(MobEffects.BLINDNESS, 1200)));
+    public static final Potion LONG_BLINDNESS = register("long_blindness", new Potion("blindness", new MobEffectInstance(MobEffects.BLINDNESS, 3600)));
 
     @SuppressWarnings("UnnecessaryReturnStatement")
     private DesolationPotions() {
@@ -23,16 +24,16 @@ public class DesolationPotions {
     }
 
     private static Potion register(String id, Potion potion) {
-        return Registry.register(Registries.POTION, Identifier.of(Desolation.MOD_ID, id), potion);
+        return Registry.register(BuiltInRegistries.POTION, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, id), potion);
     }
 
     public static void init() {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register((builder) -> {
-            builder.registerPotionRecipe(Potions.AWKWARD, DesolationItems.INFUSED_POWDER, Potions.FIRE_RESISTANCE);
-            builder.registerPotionRecipe(Potions.AWKWARD, DesolationItems.HEART_OF_CINDER, Registries.POTION.getEntry(DesolationPotions.CINDER_SOUL));
-            builder.registerPotionRecipe(Registries.POTION.getEntry(DesolationPotions.CINDER_SOUL), Items.REDSTONE, Registries.POTION.getEntry(DesolationPotions.LONG_CINDER_SOUL));
-            builder.registerPotionRecipe(Potions.AWKWARD, DesolationItems.PRIMED_ASH, Registries.POTION.getEntry(DesolationPotions.BLINDNESS));
-            builder.registerPotionRecipe(Registries.POTION.getEntry(DesolationPotions.BLINDNESS), Items.REDSTONE, Registries.POTION.getEntry(DesolationPotions.LONG_BLINDNESS));
+        FabricPotionBrewingBuilder.BUILD.register((builder) -> {
+            builder.registerPotionRecipe(Potions.AWKWARD, Ingredient.of(DesolationItems.INFUSED_POWDER), Potions.FIRE_RESISTANCE);
+            builder.registerPotionRecipe(Potions.AWKWARD, Ingredient.of(DesolationItems.HEART_OF_CINDER), BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.CINDER_SOUL));
+            builder.registerPotionRecipe(BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.CINDER_SOUL), Ingredient.of(Items.REDSTONE), BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.LONG_CINDER_SOUL));
+            builder.registerPotionRecipe(Potions.AWKWARD, Ingredient.of(DesolationItems.PRIMED_ASH), BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.BLINDNESS));
+            builder.registerPotionRecipe(BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.BLINDNESS), Ingredient.of(Items.REDSTONE), BuiltInRegistries.POTION.wrapAsHolder(DesolationPotions.LONG_BLINDNESS));
         });
     }
 }

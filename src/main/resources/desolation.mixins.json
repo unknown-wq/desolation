@@ -7,7 +7,9 @@
     "enchantment.EnchantmentHelperMixin",
     "entity.LivingEntityMixin",
     "entity.player.PlayerEntityMixin",
-    "tree.TrunkPlacerMixin"
+    "tree.TrunkPlacerMixin",
+    "worldgen.PlacerTypeInvokers$TrunkPlacerTypeInvoker",
+    "worldgen.PlacerTypeInvokers$FoliagePlacerTypeInvoker"
   ],
   "client": [
     "client.gui.hud.InGameHudMixin",

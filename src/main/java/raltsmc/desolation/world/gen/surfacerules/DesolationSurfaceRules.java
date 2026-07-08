@@ -1,8 +1,9 @@
 package raltsmc.desolation.world.gen.surfacerules;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.world.gen.surfacebuilder.MaterialRules;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
 import raltsmc.desolation.registry.DesolationBiomes;
 import raltsmc.desolation.registry.DesolationBlocks;
 
@@ -13,23 +14,23 @@ public class DesolationSurfaceRules {
 		return;
 	}
 
-    private static MaterialRules.MaterialRule block(Block block) {
-        return MaterialRules.block(block.getDefaultState());
+    private static SurfaceRules.RuleSource block(Block block) {
+        return SurfaceRules.state(block.defaultBlockState());
     }
 
-	public static MaterialRules.MaterialRule createRules() {
+	public static SurfaceRules.RuleSource createRules() {
 
         // Biome-level rules
-        MaterialRules.MaterialRule charredForest = MaterialRules.condition(MaterialRules.STONE_DEPTH_FLOOR_WITH_SURFACE_DEPTH_RANGE_6,
-                MaterialRules.condition(MaterialRules.biome(DesolationBiomes.CHARRED_FOREST,
+        SurfaceRules.RuleSource charredForest = SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(0, false, 6, CaveSurface.FLOOR),
+                SurfaceRules.ifTrue(SurfaceRules.isBiome(DesolationBiomes.CHARRED_FOREST,
                         DesolationBiomes.CHARRED_FOREST_CLEARING,
                         DesolationBiomes.CHARRED_FOREST_SMALL),
-            MaterialRules.sequence(MaterialRules.condition(MaterialRules.water(0, 0),
+            SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(0, 0),
                     block(DesolationBlocks.CHARRED_SOIL)),
                     block(Blocks.DIRT))));
 
-        // At the moment, there's just Charred Forest (and variants).  To add another, wrap them in MaterialRules.sequence()
-        return MaterialRules.condition(MaterialRules.surface(),
+        // At the moment, there's just Charred Forest (and variants).  To add another, wrap them in SurfaceRules.sequence()
+        return SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),
                 charredForest);
 	}
 

@@ -1,24 +1,24 @@
 package raltsmc.desolation.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBiomeTags;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BiomeTags;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.level.biome.Biome;
 import raltsmc.desolation.registry.DesolationBiomes;
 import raltsmc.desolation.tag.DesolationBiomeTags;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DesolationBiomeTagProvider extends FabricTagProvider<Biome> {
-	protected DesolationBiomeTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-		super(output, RegistryKeys.BIOME, registriesFuture);
+public class DesolationBiomeTagProvider extends FabricTagsProvider<Biome> {
+	protected DesolationBiomeTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+		super(output, Registries.BIOME, registriesFuture);
 	}
 
 	@Override
-	public void configure(RegistryWrapper.WrapperLookup registries) {
+	public void addTags(HolderLookup.Provider registries) {
 		/*
 		 * Vanilla biome categories
 		 */
@@ -44,22 +44,22 @@ public class DesolationBiomeTagProvider extends FabricTagProvider<Biome> {
 		/*
 		 * Biome structure generation tags
 		 */
-		builder(BiomeTags.MINESHAFT_HAS_STRUCTURE)
+		builder(BiomeTags.HAS_MINESHAFT)
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
 
-		builder(BiomeTags.RUINED_PORTAL_STANDARD_HAS_STRUCTURE)
+		builder(BiomeTags.HAS_RUINED_PORTAL_STANDARD)
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
 
-		builder(BiomeTags.STRONGHOLD_HAS_STRUCTURE)
+		builder(BiomeTags.HAS_STRONGHOLD)
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
 
-		builder(BiomeTags.TRIAL_CHAMBERS_HAS_STRUCTURE)
+		builder(BiomeTags.HAS_TRIAL_CHAMBERS)
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
@@ -68,10 +68,5 @@ public class DesolationBiomeTagProvider extends FabricTagProvider<Biome> {
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
-	}
-
-	@Override
-	public String getName() {
-		return "Desolation Biome Tags";
 	}
 }

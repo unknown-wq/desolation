@@ -1,20 +1,20 @@
 package raltsmc.desolation.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PillarBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class CharredLogBlock extends PillarBlock {
-    public CharredLogBlock(Settings settings) {
-        super(settings);
+public class CharredLogBlock extends RotatedPillarBlock {
+    public CharredLogBlock(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
-        super.onStateReplaced(state, world, pos, moved);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel world, BlockPos pos, boolean moved) {
+        super.affectNeighborsAfterRemoval(state, world, pos, moved);
 
-        if (!state.isOf(world.getBlockState(pos).getBlock())) {
+        if (!state.is(world.getBlockState(pos).getBlock())) {
             CharredBranchBlock.notifyLossOfSupport(world, pos);
         }
     }

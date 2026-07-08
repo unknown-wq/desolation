@@ -1,9 +1,9 @@
 package raltsmc.desolation.mixin.potion;
 
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.PotionContents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,16 +12,16 @@ import raltsmc.desolation.registry.DesolationStatusEffects;
 
 import java.util.function.Consumer;
 
-@Mixin(PotionContentsComponent.class)
+@Mixin(PotionContents.class)
 public abstract class PotionContentsComponentMixin {
-    @Inject(method = "buildTooltip(Ljava/lang/Iterable;Ljava/util/function/Consumer;FF)V",
+    @Inject(method = "addPotionTooltip(Ljava/lang/Iterable;Ljava/util/function/Consumer;FF)V",
             at = @At("TAIL")
     )
-    private static void desolation$addTooltip(Iterable<StatusEffectInstance> effects, Consumer<Text> textConsumer, float durationMultiplier, float tickRate, CallbackInfo ci) {
-        for (StatusEffectInstance effect : effects) {
-            if (DesolationStatusEffects.CINDER_SOUL.equals(effect.getEffectType().value())) {
-                textConsumer.accept(Text.translatable("potion.cinder_soul.tooltip_a").formatted(Formatting.GOLD));
-                textConsumer.accept(Text.translatable("potion.cinder_soul.tooltip_b").formatted(Formatting.GOLD));
+    private static void desolation$addTooltip(Iterable<MobEffectInstance> effects, Consumer<Component> textConsumer, float durationMultiplier, float tickRate, CallbackInfo ci) {
+        for (MobEffectInstance effect : effects) {
+            if (DesolationStatusEffects.CINDER_SOUL.equals(effect.getEffect().value())) {
+                textConsumer.accept(Component.translatable("potion.cinder_soul.tooltip_a").withStyle(ChatFormatting.GOLD));
+                textConsumer.accept(Component.translatable("potion.cinder_soul.tooltip_b").withStyle(ChatFormatting.GOLD));
 
                 break;
             }

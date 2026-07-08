@@ -1,55 +1,55 @@
 package raltsmc.desolation.item;
 
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Optional;
 
 public class AshItem extends ConfigurableFertilizerItem {
-    public AshItem(Settings settings) {
-        super(settings);
+    public AshItem(Properties properties) {
+        super(properties);
         setGrowChance(0.25);
         setGrowTries(1);
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        ItemStack itemStack = user.getStackInHand(hand);
-        Vec3d target = user.getPos()
-                .add(new Vec3d (0, user.getEyeY() - user.getY(), 0).multiply(0.75))
-                .add(user.getRotationVector().normalize().multiply(2));
-        if (!world.isClient) {
-            AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(world, target.x, target.y, target.z);
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        ItemStack itemStack = user.getItemInHand(hand);
+        Vec3 target = user.position()
+                .add(new Vec3(0, user.getEyeY() - user.getY(), 0).scale(0.75))
+                .add(user.getLookAngle().normalize().scale(2));
+        if (!world.isClientSide()) {
+            AreaEffectCloud areaEffectCloudEntity = new AreaEffectCloud(world, target.x, target.y, target.z);
             areaEffectCloudEntity.setDuration(20);
-            areaEffectCloudEntity.setParticleType(ParticleTypes.WHITE_ASH);
-            areaEffectCloudEntity.setPotionContents(new PotionContentsComponent(Optional.empty(),
+            areaEffectCloudEntity.setCustomParticle(ParticleTypes.WHITE_ASH);
+            areaEffectCloudEntity.setPotionContents(new PotionContents(Optional.empty(),
                     Optional.of(0xcccccc),
-                    List.of(new StatusEffectInstance(StatusEffects.BLINDNESS, 40, 1)),
+                    List.of(new MobEffectInstance(MobEffects.BLINDNESS, 40, 1)),
                     Optional.empty()));
             areaEffectCloudEntity.setRadius(0.5F);
             areaEffectCloudEntity.setRadiusOnUse(0.5F);
-            areaEffectCloudEntity.setRadiusGrowth(0.03F);
+            areaEffectCloudEntity.setRadiusPerTick(0.03F);
             areaEffectCloudEntity.setOwner(user);
             areaEffectCloudEntity.setWaitTime(0);
-            areaEffectCloudEntity.playSound(SoundEvents.BLOCK_SNOW_BREAK, 1, 1);
-            world.spawnEntity(areaEffectCloudEntity);
+            areaEffectCloudEntity.playSound(SoundEvents.SNOW_BREAK, 1, 1);
+            world.addFreshEntity(areaEffectCloudEntity);
         }
 
-        if (!user.getAbilities().creativeMode) {
-            itemStack.decrement(1);
+        if (!user.getAbilities().instabuild) {
+            itemStack.shrink(1);
         }
 
-        return ActionResult.SUCCESS.withNewHandStack(itemStack);
+        return InteractionResult.SUCCESS;
     }
 }

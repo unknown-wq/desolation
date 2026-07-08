@@ -3,15 +3,15 @@ package raltsmc.desolation.world.feature;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 
 import java.util.List;
 
-public class ScatteredFeatureConfig implements FeatureConfig {
+public class ScatteredFeatureConfig implements FeatureConfiguration {
     public static final Codec<ScatteredFeatureConfig> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-            BlockStateProvider.TYPE_CODEC.fieldOf("state_provider").forGetter((scatteredFeatureConfig) -> scatteredFeatureConfig.stateProvider),
+            BlockStateProvider.CODEC.fieldOf("state_provider").forGetter((scatteredFeatureConfig) -> scatteredFeatureConfig.stateProvider),
             BlockState.CODEC.listOf().fieldOf("whitelist").forGetter((scatteredFeatureConfig) -> ImmutableList.copyOf(scatteredFeatureConfig.whitelist)),
             BlockState.CODEC.listOf().fieldOf("blacklist").forGetter((scatteredFeatureConfig) -> ImmutableList.copyOf(scatteredFeatureConfig.blacklist)),
             Codec.INT.fieldOf("tries").orElse(128).forGetter((scatteredFeatureConfig) -> scatteredFeatureConfig.tries),

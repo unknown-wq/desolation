@@ -1,18 +1,18 @@
 package raltsmc.desolation.entity.effect;
 
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import raltsmc.desolation.Desolation;
 
-public class CinderSoulStatusEffect extends StatusEffect {
+public class CinderSoulStatusEffect extends MobEffect {
     public CinderSoulStatusEffect() {
-        super(StatusEffectCategory.BENEFICIAL, 0xff5900);
-        this.addAttributeModifier(EntityAttributes.ATTACK_DAMAGE, Identifier.of(Desolation.MOD_ID, "effect.cindersoul_strength"), 7.0D, EntityAttributeModifier.Operation.ADD_VALUE)
-                .addAttributeModifier(EntityAttributes.ATTACK_KNOCKBACK, Identifier.of(Desolation.MOD_ID, "effect.cindersoul_knockback"), 0.5D, EntityAttributeModifier.Operation.ADD_VALUE)
-                .addAttributeModifier(EntityAttributes.ARMOR, Identifier.of(Desolation.MOD_ID, "effect.cindersoul_resistance"), 4.0D, EntityAttributeModifier.Operation.ADD_VALUE)
-                .addAttributeModifier(EntityAttributes.KNOCKBACK_RESISTANCE, Identifier.of(Desolation.MOD_ID, "effect.cindersoul_knockback_resistance"), 1.5D, EntityAttributeModifier.Operation.ADD_VALUE);
+        super(MobEffectCategory.BENEFICIAL, 0xff5900);
+        this.addAttributeModifier(Attributes.ATTACK_DAMAGE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "effect.cindersoul_strength"), 7.0D, AttributeModifier.Operation.ADD_VALUE)
+                .addAttributeModifier(Attributes.ATTACK_KNOCKBACK, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "effect.cindersoul_knockback"), 0.5D, AttributeModifier.Operation.ADD_VALUE)
+                .addAttributeModifier(Attributes.ARMOR, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "effect.cindersoul_resistance"), 4.0D, AttributeModifier.Operation.ADD_VALUE)
+                .addAttributeModifier(Attributes.KNOCKBACK_RESISTANCE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "effect.cindersoul_knockback_resistance"), 1.5D, AttributeModifier.Operation.ADD_VALUE);
     }
 }

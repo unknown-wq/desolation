@@ -1,11 +1,11 @@
 package raltsmc.desolation.registry;
 
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import raltsmc.desolation.Desolation;
 
 public class DesolationParticles {
@@ -17,7 +17,7 @@ public class DesolationParticles {
     }
 
     public static <T extends ParticleType<?>> T register(String name, T type) {
-        return Registry.register(Registries.PARTICLE_TYPE, Identifier.of(Desolation.MOD_ID, name), type);
+        return Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, name), type);
     }
 
     public static void init() { }

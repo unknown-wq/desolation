@@ -70,9 +70,16 @@ Minecraft 26.1 ships **unobfuscated with parameter names**, so there is no mappi
 The code now compiles against Mojang's official names directly. Every Yarn class/method name
 in `src/` must be renamed. Common renames observed in this codebase (with file counts):
 
+> ⚠️ **CORRECTION (verified against the 26.1.2 jar): the `Identifier` row below was INVERTED.**
+> In 26.1.2 the class is **`net.minecraft.resources.Identifier`** — `ResourceLocation` does NOT exist in the jar (0 hits).
+> Keep the type name `Identifier`; only change the import `net.minecraft.util.Identifier` → **`net.minecraft.resources.Identifier`**.
+> The factory `Identifier.of(ns, path)` is gone → use **`Identifier.fromNamespaceAndPath(ns, path)`** (or `Identifier.parse(str)`).
+> Do NOT write `ResourceLocation` anywhere — it will not compile.
+> Also: **`BlockRenderLayerMap` was removed** — set block render layers via `"render_type": "translucent"/"cutout"` in the block model JSON (or model datagen) instead of code.
+
 | Yarn (old) | Mojang (new) | Files affected |
 |---|---|---|
-| `Identifier` | `ResourceLocation` | ~40 |
+| `net.minecraft.util.Identifier` | **`net.minecraft.resources.Identifier`** (SAME name; `Identifier.of`→`Identifier.fromNamespaceAndPath`) | ~40 |
 | `ServerWorld` | `ServerLevel` | ~13 |
 | `World` | `Level` | ~12 |
 | `Registries` (yarn) | `BuiltInRegistries` (vanilla) / `Registries` (Fabric keys) | ~13 |

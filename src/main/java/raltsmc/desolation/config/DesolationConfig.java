@@ -3,7 +3,7 @@ package raltsmc.desolation.config;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 @Config(name = "desolation")
 public class DesolationConfig implements ConfigData {
@@ -21,8 +21,8 @@ public class DesolationConfig implements ConfigData {
 
     @Override
     public void validatePostLoad() {
-        charredForestChance = MathHelper.clamp(charredForestChance, 0.01D, 1D);
-        smallCharredForestChance = MathHelper.clamp(smallCharredForestChance, 0.01D, 1D);
-        charredForestClearingChance = MathHelper.clamp(charredForestClearingChance, 0.01D, 1D);
+        charredForestChance = Mth.clamp(charredForestChance, 0.01D, 1D);
+        smallCharredForestChance = Mth.clamp(smallCharredForestChance, 0.01D, 1D);
+        charredForestClearingChance = Mth.clamp(charredForestClearingChance, 0.01D, 1D);
     }
 }

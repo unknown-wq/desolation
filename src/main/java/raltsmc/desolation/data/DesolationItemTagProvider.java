@@ -1,32 +1,25 @@
 package raltsmc.desolation.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import raltsmc.desolation.registry.DesolationBlocks;
-import raltsmc.desolation.registry.DesolationBoats;
 import raltsmc.desolation.tag.DesolationBlockTags;
 import raltsmc.desolation.tag.DesolationItemTags;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DesolationItemTagProvider extends FabricTagProvider.ItemTagProvider {
-	protected DesolationItemTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture, BlockTagProvider blockTagProvider) {
+public class DesolationItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
+	protected DesolationItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture, BlockTagsProvider blockTagProvider) {
 		super(output, registriesFuture, blockTagProvider);
 	}
 
 	@Override
-	public void configure(RegistryWrapper.WrapperLookup registries) {
-		valueLookupBuilder(ItemTags.BOATS)
-			.add(DesolationBoats.CHARRED_BOAT);
-
-		valueLookupBuilder(ItemTags.CHEST_BOATS)
-			.add(DesolationBoats.CHARRED_CHEST_BOAT);
-
+	public void addTags(HolderLookup.Provider registries) {
 		copy(BlockTags.LEAVES, ItemTags.LEAVES);
 
 		copy(BlockTags.LOGS, ItemTags.LOGS);
@@ -72,10 +65,5 @@ public class DesolationItemTagProvider extends FabricTagProvider.ItemTagProvider
 		copy(ConventionalBlockTags.STRIPPED_LOGS, ConventionalItemTags.STRIPPED_LOGS);
 
 		copy(ConventionalBlockTags.STRIPPED_WOODS, ConventionalItemTags.STRIPPED_WOODS);
-	}
-
-	@Override
-	public String getName() {
-		return "Desolation Item Tags";
 	}
 }

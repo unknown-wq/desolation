@@ -25,9 +25,6 @@
     "client": [
       "raltsmc.desolation.init.client.DesolationClient"
     ],
-    "terraform-boat-dfu": [
-      "raltsmc.desolation.init.helpers.DesolationBoatDfu"
-    ],
     "fabric-datagen": [
       "raltsmc.desolation.data.DesolationDatagen"
     ],
