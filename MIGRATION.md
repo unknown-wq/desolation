@@ -204,3 +204,31 @@ sed -i 's|distributionUrl=.*|distributionUrl=https\\://repo.huaweicloud.com/grad
 (Do not commit the mirror URL.) The dist is already cached in `~/.gradle/wrapper/dists` for the
 mirror URL from Agent 1's verification run. Always build with
 `JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64`.
+
+---
+
+## 8. Coordinator decisions (Agents 2–5 MUST follow)
+
+1. **Boats: REMOVED.** `terraform-boat-api` has no 26.1 build. Delete `registry/DesolationBoats.java`,
+   `init/helpers/DesolationBoatDfu.java`, the `terraform-boat-dfu` entrypoint in `fabric.mod.json`,
+   any boat registration/tags, and boat item/asset references. Owner: **Agent 2** (registry/entity).
+2. **Terraform: DROPPED ENTIRELY.** Only real usage was `com.terraformersmc.terraform.tree.api.placer.PlacerTypes`
+   in `registry/DesolationTrunkPlacerTypes.java` / `DesolationFoliagePlacerTypes.java`. terraform-wood-api is
+   NOT imported anywhere (dead, like CCA); terraform-boat goes with the boats. Replace `PlacerTypes.registerTrunkPlacer`/
+   `registerFoliagePlacer` with direct vanilla registry calls via a small **@Invoker mixin** on
+   `TrunkPlacerType`/`FoliagePlacerType` (their static `register` is private). Owner: **Agent 3** (worldgen):
+   - Agent 3 creates the invoker mixin at `mixin/worldgen/PlacerTypeInvokers.java` (package `raltsmc.desolation.mixin.worldgen`).
+   - Agent 3 removes the two `terraform-tree-api-v1` / `terraform-wood-api-v1` lines from `build.gradle` (sole editor of build.gradle in phase 1).
+   - Agent 5 adds `"worldgen.PlacerTypeInvokers"` to the `mixins` array in `desolation.mixins.json` (Agent 5 is sole editor of that file).
+3. **Biolith: KEPT** (v3.6.0-alpha.9). Necessary for overworld biome injection + surface rules; no vanilla
+   equivalent. Adapt `world/gen/world/DesolationBiolithGeneration.java` to the Biolith 3.x API. Owner: **Agent 3**.
+
+### Shared-file ownership (do NOT edit files outside your set; prevents parallel clobbering)
+- `build.gradle` → **Agent 3** only (terraform dep removal).
+- `fabric.mod.json` → **Agent 2** only (boat entrypoint removal).
+- `desolation.mixins.json` → **Agent 5** only (remove trinkets entries; add `worldgen.PlacerTypeInvokers`).
+- `init/client/DesolationClient.java` → **Agent 4** only (remove TrinketRenderers + boat client-helper calls).
+- `registry/DesolationItems.java` → **Agent 2** only (remove trinket items).
+- Everything else: by directory per §6. The tree will NOT fully compile until all agents finish — do NOT chase
+  cross-domain errors; just make YOUR files correct for 26.1 (Mojang names + updated dep APIs). Final integration
+  build is done by the coordinator.
