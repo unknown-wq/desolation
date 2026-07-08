@@ -3,3 +3,19 @@ accessWidener	v1	official
 accessible	method	net/minecraft/world/level/block/state/properties/BlockSetType register (Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;
 accessible	method	net/minecraft/world/item/FireChargeItem playSound (Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V
 accessible	method	net/minecraft/world/entity/SpawnPlacements register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/SpawnPlacementType;Lnet/minecraft/world/level/levelgen/Heightmap$Types;Lnet/minecraft/world/entity/SpawnPlacements$SpawnPredicate;)V
+
+# --- Model datagen (26.1): the BlockModelGenerators/ItemModelGenerators helper API is almost
+# entirely private in 26.1, so DesolationModelProvider pushes generators straight to the private
+# output sinks and reuses a few private helpers. Widen exactly what that provider needs.
+accessible	field	net/minecraft/client/data/models/BlockModelGenerators blockStateOutput Ljava/util/function/Consumer;
+accessible	field	net/minecraft/client/data/models/BlockModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
+accessible	field	net/minecraft/client/data/models/BlockModelGenerators modelOutput Ljava/util/function/BiConsumer;
+accessible	field	net/minecraft/client/data/models/ItemModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
+accessible	field	net/minecraft/client/data/models/ItemModelGenerators modelOutput Ljava/util/function/BiConsumer;
+accessible	method	net/minecraft/client/data/models/BlockModelGenerators family (Lnet/minecraft/world/level/block/Block;)Lnet/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider;
+accessible	method	net/minecraft/client/data/models/BlockModelGenerators woodProvider (Lnet/minecraft/world/level/block/Block;)Lnet/minecraft/client/data/models/BlockModelGenerators$WoodProvider;
+accessible	method	net/minecraft/client/data/models/BlockModelGenerators createDoor (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;)Lnet/minecraft/client/data/models/blockstates/BlockModelDefinitionGenerator;
+accessible	method	net/minecraft/client/data/models/BlockModelGenerators createTrapdoor (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;Lnet/minecraft/client/data/models/MultiVariant;)Lnet/minecraft/client/data/models/blockstates/BlockModelDefinitionGenerator;
+accessible	class	net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider
+accessible	class	net/minecraft/client/data/models/BlockModelGenerators$WoodProvider
+accessible	field	net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider skipGeneratingModelsFor Ljava/util/Set;
