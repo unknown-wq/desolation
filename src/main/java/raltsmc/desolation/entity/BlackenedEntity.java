@@ -24,6 +24,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -71,6 +72,9 @@ public class BlackenedEntity extends Monster implements GeoEntity {
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        // Attack every other living creature, but leave fellow Desolation mobs alone.
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, true,
+                (entity, level) -> !(entity instanceof BlackenedEntity) && !(entity instanceof AshScuttlerEntity)));
     }
 
     public static AttributeSupplier.Builder createBlackenedAttributes() {
