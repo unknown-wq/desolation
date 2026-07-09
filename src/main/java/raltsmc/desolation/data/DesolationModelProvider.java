@@ -1,5 +1,6 @@
 package raltsmc.desolation.data;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
@@ -26,6 +27,7 @@ import raltsmc.desolation.registry.DesolationBlockFamilies;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.registry.DesolationItems;
 
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 /**
@@ -33,13 +35,17 @@ import java.util.function.BiConsumer;
  * this provider pushes {@link BlockModelDefinitionGenerator}/{@link MultiVariant} objects directly to
  * the generators' output sinks (access-widened in {@code desolation.accesswidener}) and reuses a few
  * widened private helpers ({@code family}, {@code woodProvider}, {@code createDoor},
- * {@code createTrapdoor}). {@code BlockRenderLayerMap} was removed in 26.1, so render layers are
- * emitted as a {@code "render_type"} field injected into the block model JSON (see {@link #withRenderType}).
+ * {@code createTrapdoor}).
+ *
+ * <p>Render layers: {@code BlockRenderLayerMap} was removed in 26.1 and, since 26.1, vanilla
+ * assigns each quad's render pass (solid / cutout / translucent) <em>automatically</em> from its
+ * sprite's alpha content — fully-transparent pixels ⇒ cutout, partially-transparent ⇒ translucent.
+ * There is no vanilla top-level {@code "render_type"} model field. Cutout blocks (doors, trapdoors,
+ * cross plants, saplings) therefore need no special handling. The only vanilla override is the
+ * per-texture {@code "force_translucent"} flag, used here to keep the leaves-like blocks on the
+ * translucent pass (see {@link #forceTranslucent}).
  */
 public class DesolationModelProvider extends FabricModelProvider {
-    private static final String CUTOUT = "minecraft:cutout";
-    private static final String TRANSLUCENT = "minecraft:translucent";
-
     public DesolationModelProvider(FabricPackOutput output) {
         super(output);
     }
@@ -51,7 +57,8 @@ public class DesolationModelProvider extends FabricModelProvider {
         // === Charred wood family ===
         // family(base) uploads the planks cube_all model + blockstate; generateFor() emits every
         // other family member (stairs/slab/fence/gate/pressure_plate/button/sign/wall_sign) plus
-        // their item models. Door + trapdoor are skipped so we can re-emit them with a cutout render_type.
+        // their item models. Door + trapdoor are skipped so we re-emit them (their transparent
+        // sprites are auto-assigned to the cutout pass by vanilla).
         BlockModelGenerators.BlockFamilyProvider family = generator.family(DesolationBlocks.CHARRED_PLANKS);
         family.skipGeneratingModelsFor.add(DesolationBlocks.CHARRED_DOOR);
         family.skipGeneratingModelsFor.add(DesolationBlocks.CHARRED_TRAPDOOR);
@@ -59,7 +66,7 @@ public class DesolationModelProvider extends FabricModelProvider {
 
         // Charred door (cutout): 8 door part models + blockstate + flat item model.
         TextureMapping doorMapping = TextureMapping.door(DesolationBlocks.CHARRED_DOOR);
-        BiConsumer<Identifier, ModelInstance> doorOut = withRenderType(models, CUTOUT);
+        BiConsumer<Identifier, ModelInstance> doorOut = models;
         MultiVariant doorBottomLeft = plain(ModelTemplates.DOOR_BOTTOM_LEFT.create(DesolationBlocks.CHARRED_DOOR, doorMapping, doorOut));
         MultiVariant doorBottomLeftOpen = plain(ModelTemplates.DOOR_BOTTOM_LEFT_OPEN.create(DesolationBlocks.CHARRED_DOOR, doorMapping, doorOut));
         MultiVariant doorBottomRight = plain(ModelTemplates.DOOR_BOTTOM_RIGHT.create(DesolationBlocks.CHARRED_DOOR, doorMapping, doorOut));
@@ -77,7 +84,7 @@ public class DesolationModelProvider extends FabricModelProvider {
 
         // Charred trapdoor (cutout): top/bottom/open models + blockstate + parented item model.
         TextureMapping trapdoorMapping = TextureMapping.defaultTexture(DesolationBlocks.CHARRED_TRAPDOOR);
-        BiConsumer<Identifier, ModelInstance> trapdoorOut = withRenderType(models, CUTOUT);
+        BiConsumer<Identifier, ModelInstance> trapdoorOut = models;
         Identifier trapdoorTop = ModelTemplates.TRAPDOOR_TOP.create(DesolationBlocks.CHARRED_TRAPDOOR, trapdoorMapping, trapdoorOut);
         Identifier trapdoorBottom = ModelTemplates.TRAPDOOR_BOTTOM.create(DesolationBlocks.CHARRED_TRAPDOOR, trapdoorMapping, trapdoorOut);
         Identifier trapdoorOpen = ModelTemplates.TRAPDOOR_OPEN.create(DesolationBlocks.CHARRED_TRAPDOOR, trapdoorMapping, trapdoorOut);
@@ -91,25 +98,26 @@ public class DesolationModelProvider extends FabricModelProvider {
         generator.woodProvider(DesolationBlocks.STRIPPED_CHARRED_LOG)
                 .logWithHorizontal(DesolationBlocks.STRIPPED_CHARRED_LOG).wood(DesolationBlocks.STRIPPED_CHARRED_WOOD);
 
-        // Hanging sign + wall hanging sign (public helper).
-        generator.createHangingSign(DesolationBlocks.CHARRED_PLANKS,
-                DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.CHARRED_WALL_HANGING_SIGN);
+        // Sign, wall sign, hanging sign and wall hanging sign models are emitted by
+        // family.generateFor() above (26.2 made signs block models; the standalone
+        // createHangingSign helper was removed). See DesolationBlockFamilies.CHARRED.
 
-        // Charred sapling + potted sapling (cutout cross).
+        // Charred sapling + potted sapling (cross; transparent sprite auto-assigns to cutout).
         Identifier saplingModel = ModelTemplates.CROSS.create(DesolationBlocks.CHARRED_SAPLING,
-                TextureMapping.cross(DesolationBlocks.CHARRED_SAPLING), withRenderType(models, CUTOUT));
+                TextureMapping.cross(DesolationBlocks.CHARRED_SAPLING), models);
         generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(DesolationBlocks.CHARRED_SAPLING, plain(saplingModel)));
         Item saplingItemStack = DesolationBlocks.CHARRED_SAPLING.asItem();
         Identifier saplingItem = ModelTemplates.FLAT_ITEM.create(saplingItemStack,
                 TextureMapping.layer0(DesolationBlocks.CHARRED_SAPLING), models);
         generator.itemModelOutput.accept(saplingItemStack, ItemModelUtils.plainModel(saplingItem));
         Identifier pottedSaplingModel = ModelTemplates.FLOWER_POT_CROSS.create(DesolationBlocks.POTTED_CHARRED_SAPLING,
-                TextureMapping.plant(DesolationBlocks.CHARRED_SAPLING), withRenderType(models, CUTOUT));
+                TextureMapping.plant(DesolationBlocks.CHARRED_SAPLING), models);
         generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(DesolationBlocks.POTTED_CHARRED_SAPLING, plain(pottedSaplingModel)));
 
-        // Leaves-like blocks (translucent).
-        singletonWithRenderType(generator, DesolationBlocks.CHARRED_BRANCHES, TexturedModel.LEAVES, TRANSLUCENT);
-        singletonWithRenderType(generator, DesolationBlocks.ASH_BRAMBLE, TexturedModel.LEAVES, TRANSLUCENT);
+        // Leaves-like blocks: forced onto the translucent pass (their sprites would otherwise
+        // auto-assign to cutout via their fully-transparent pixels).
+        singletonForceTranslucent(generator, DesolationBlocks.CHARRED_BRANCHES, TexturedModel.LEAVES);
+        singletonForceTranslucent(generator, DesolationBlocks.ASH_BRAMBLE, TexturedModel.LEAVES);
 
         // Misc. simple cube-all blocks.
         simpleCubeAll(generator, DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK);
@@ -149,16 +157,16 @@ public class DesolationModelProvider extends FabricModelProvider {
         generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(DesolationBlocks.CHARRED_SOIL, random(soilVar1, soilVar2)));
         generator.itemModelOutput.accept(DesolationItems.CHARRED_SOIL, ItemModelUtils.plainModel(soilVar1));
 
-        // Cinderfruit plant: age cross models (cutout); its item is cinderfruit_seeds (handled in item models).
-        BiConsumer<Identifier, ModelInstance> cinderOut = withRenderType(models, CUTOUT);
+        // Cinderfruit plant: age cross models (auto-cutout); its item is cinderfruit_seeds (handled in item models).
+        BiConsumer<Identifier, ModelInstance> cinderOut = models;
         generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(DesolationBlocks.CINDERFRUIT_PLANT)
                 .with(PropertyDispatch.initial(CinderfruitPlantBlock.AGE).generate(age -> plain(
                         ModelTemplates.CROSS.createWithSuffix(DesolationBlocks.CINDERFRUIT_PLANT, "_age" + age,
                                 TextureMapping.cross(TextureMapping.getBlockTexture(DesolationBlocks.CINDERFRUIT_PLANT, "_age" + age)),
                                 cinderOut)))));
 
-        // Scorched tuft: untinted cross randomly selected from three size models (cutout).
-        BiConsumer<Identifier, ModelInstance> tuftOut = withRenderType(models, CUTOUT);
+        // Scorched tuft: untinted cross randomly selected from three size models (auto-cutout).
+        BiConsumer<Identifier, ModelInstance> tuftOut = models;
         Identifier tuftSmall = ModelTemplates.TINTED_CROSS.create(DesolationBlocks.SCORCHED_TUFT,
                 TextureMapping.cross(TextureMapping.getBlockTexture(DesolationBlocks.SCORCHED_TUFT)), tuftOut);
         Identifier tuftMedium = ModelTemplates.TINTED_CROSS.createWithSuffix(DesolationBlocks.SCORCHED_TUFT, "_medium",
@@ -196,11 +204,31 @@ public class DesolationModelProvider extends FabricModelProvider {
 
     // === helpers ===
 
-    /** Wraps a model output sink so every uploaded model JSON also carries a {@code render_type} field. */
-    private static BiConsumer<Identifier, ModelInstance> withRenderType(BiConsumer<Identifier, ModelInstance> out, String renderType) {
+    /**
+     * Wraps a model output sink so every direct (non-variable) texture reference in the uploaded
+     * model JSON is rewritten to the object form {@code {"sprite": ..., "force_translucent": true}},
+     * pinning that geometry to the translucent render pass (26.1+ vanilla mechanism; see class doc).
+     */
+    private static BiConsumer<Identifier, ModelInstance> forceTranslucent(BiConsumer<Identifier, ModelInstance> out) {
         return (id, instance) -> out.accept(id, () -> {
             JsonObject json = instance.get().getAsJsonObject();
-            json.addProperty("render_type", renderType);
+            if (json.has("textures") && json.get("textures").isJsonObject()) {
+                JsonObject textures = json.getAsJsonObject("textures");
+                for (String key : new ArrayList<>(textures.keySet())) {
+                    JsonElement value = textures.get(key);
+                    if (!value.isJsonPrimitive()) {
+                        continue;
+                    }
+                    String texture = value.getAsString();
+                    if (texture.startsWith("#")) {
+                        continue; // texture variable reference — cannot carry force_translucent
+                    }
+                    JsonObject spriteObject = new JsonObject();
+                    spriteObject.addProperty("sprite", texture);
+                    spriteObject.addProperty("force_translucent", true);
+                    textures.add(key, spriteObject);
+                }
+            }
             return json;
         });
     }
@@ -223,10 +251,10 @@ public class DesolationModelProvider extends FabricModelProvider {
         generator.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(model));
     }
 
-    private static void singletonWithRenderType(BlockModelGenerators generator, Block block,
-                                                TexturedModel.Provider provider, String renderType) {
+    private static void singletonForceTranslucent(BlockModelGenerators generator, Block block,
+                                                  TexturedModel.Provider provider) {
         TexturedModel textured = provider.get(block);
-        Identifier model = textured.getTemplate().create(block, textured.getMapping(), withRenderType(generator.modelOutput, renderType));
+        Identifier model = textured.getTemplate().create(block, textured.getMapping(), forceTranslucent(generator.modelOutput));
         generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(block, plain(model)));
         generator.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(model));
     }

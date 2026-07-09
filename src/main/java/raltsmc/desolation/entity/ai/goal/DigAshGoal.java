@@ -58,7 +58,7 @@ public class DigAshGoal extends MoveToBlockGoal {
     }
 
     public void tick() {
-        Vec3 location = blockPos.getCenter();
+        Vec3 location = Vec3.atCenterOf(blockPos);
 
         if (!location.closerThan(mob.position(), acceptedDistance())) {
             ++tryTicks;

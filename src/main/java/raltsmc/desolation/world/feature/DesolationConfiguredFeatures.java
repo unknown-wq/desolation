@@ -57,7 +57,8 @@ public final class DesolationConfiguredFeatures {
                 BlockStateProvider.simple(DesolationBlocks.CHARRED_BRANCHES.defaultBlockState()),
                 new CharredFoliagePlacer(UniformInt.of(3, 5), ConstantInt.of(0),
                         UniformInt.of(3, 4)),
-                new TwoLayersFeatureSize(1, 0, 1))
+                new TwoLayersFeatureSize(1, 0, 1),
+                BlockStateProvider.simple(Blocks.DIRT.defaultBlockState()))
                 .ignoreVines()
                 .build());
 
@@ -67,7 +68,8 @@ public final class DesolationConfiguredFeatures {
                 BlockStateProvider.simple(DesolationBlocks.CHARRED_BRANCHES.defaultBlockState()),
                 new CharredFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0),
                         ConstantInt.of(2)),
-                new TwoLayersFeatureSize(1, 0, 1))
+                new TwoLayersFeatureSize(1, 0, 1),
+                BlockStateProvider.simple(Blocks.DIRT.defaultBlockState()))
                 .ignoreVines()
                 .build());
 
@@ -76,7 +78,8 @@ public final class DesolationConfiguredFeatures {
                 new FallenTrunkPlacer(6, 10, 1),
                 BlockStateProvider.simple(DesolationBlocks.CHARRED_BRANCHES.defaultBlockState()),
                 new BlobFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0), 0),
-                new TwoLayersFeatureSize(0,0,0))
+                new TwoLayersFeatureSize(0,0,0),
+                BlockStateProvider.simple(Blocks.DIRT.defaultBlockState()))
                 .ignoreVines()
                 .build());
 
@@ -85,7 +88,8 @@ public final class DesolationConfiguredFeatures {
                 new FallenTrunkPlacer(4, 2, 0),
                 BlockStateProvider.simple(DesolationBlocks.CHARRED_BRANCHES.defaultBlockState()),
                 new BlobFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0), 0),
-                new TwoLayersFeatureSize(0,0,0))
+                new TwoLayersFeatureSize(0,0,0),
+                BlockStateProvider.simple(Blocks.DIRT.defaultBlockState()))
                 .ignoreVines()
                 .build());
 

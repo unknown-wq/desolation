@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.WallHangingSignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -55,9 +55,9 @@ public class DesolationRegistries {
         S block = register(name, factory, properties);
 
         if (block instanceof StandingSignBlock || block instanceof WallSignBlock) {
-            ((FabricBlockEntityType) BlockEntityType.SIGN).addValidBlock(block);
+            ((FabricBlockEntityType) BlockEntityTypes.SIGN).addValidBlock(block);
         } else if (block instanceof CeilingHangingSignBlock || block instanceof WallHangingSignBlock) {
-            ((FabricBlockEntityType) BlockEntityType.HANGING_SIGN).addValidBlock(block);
+            ((FabricBlockEntityType) BlockEntityTypes.HANGING_SIGN).addValidBlock(block);
         } else {
             throw new IllegalArgumentException("This method only accepts vanilla sign blocks and descendants!");
         }

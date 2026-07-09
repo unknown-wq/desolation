@@ -24,21 +24,23 @@ public class DesolationItemTagProvider extends FabricTagsProvider.ItemTagsProvid
 
 		copy(BlockTags.LOGS, ItemTags.LOGS);
 
-		valueLookupBuilder(ItemTags.NON_FLAMMABLE_WOOD)
+		builder(ItemTags.NON_FLAMMABLE_WOOD)
 			.addTag(DesolationItemTags.CHARRED_LOGS)
-			.add(DesolationBlocks.CHARRED_BUTTON.asItem())
-			.add(DesolationBlocks.CHARRED_DOOR.asItem())
-			.add(DesolationBlocks.CHARRED_FENCE.asItem())
-			.add(DesolationBlocks.CHARRED_FENCE_GATE.asItem())
-			.add(DesolationBlocks.CHARRED_PLANKS.asItem())
-			.add(DesolationBlocks.CHARRED_PRESSURE_PLATE.asItem())
-			.add(DesolationBlocks.CHARRED_SLAB.asItem())
-			.add(DesolationBlocks.CHARRED_STAIRS.asItem())
-			.add(DesolationBlocks.CHARRED_TRAPDOOR.asItem());
+			.add(DesolationBlocks.CHARRED_BUTTON.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_DOOR.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_FENCE.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_FENCE_GATE.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_PLANKS.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_PRESSURE_PLATE.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_SLAB.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_STAIRS.asItem().builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_TRAPDOOR.asItem().builtInRegistryHolder().key());
 
 		copy(BlockTags.PLANKS, ItemTags.PLANKS);
 
-		copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
+		// BlockTags.SAPLINGS was removed in 26.2; add the sapling to the item tag directly.
+		builder(ItemTags.SAPLINGS)
+			.add(DesolationBlocks.CHARRED_SAPLING.asItem().builtInRegistryHolder().key());
 
 		copy(BlockTags.STANDING_SIGNS, ItemTags.SIGNS);
 

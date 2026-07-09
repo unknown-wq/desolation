@@ -239,3 +239,55 @@ mirror URL from Agent 1's verification run. Always build with
 - Everything else: by directory per §6. The tree will NOT fully compile until all agents finish — do NOT chase
   cross-domain errors; just make YOUR files correct for 26.1 (Mojang names + updated dep APIs). Final integration
   build is done by the coordinator.
+
+---
+
+# Delta: 26.1.2 → 26.2 (coordinator integration pass)
+
+Toolchain unchanged (Loom 1.17.13, Gradle 9.5.1, Java 25, unobfuscated MC, no mappings).
+Verified against the 26.2 jars via `javap` and against live sources (minecraft.wiki, fabricmc.net).
+
+## Dependency bumps (`gradle.properties`, `fabric.mod.json`)
+| Dependency | 26.1.2 | 26.2 |
+|---|---|---|
+| minecraft | 26.1.2 | **26.2** |
+| fabric-api | 0.154.2+26.1.2 | **0.154.2+26.2** |
+| cloth-config | 26.1.154 | **26.2.155** |
+| geckolib (`geckolib-fabric-<mcver>`) | 5.5.2 / -26.1.2 | **5.5.3 / -26.2** |
+| modmenu | 18.0.0-alpha.8 | **20.0.0** |
+| biolith | 3.6.0-alpha.9 | 3.6.0-alpha.9 (declares `>=26.1 <26.3`, supports 26.2) |
+| loader / loom / gradle / java | — | unchanged |
+- `fabric.mod.json` `depends.minecraft`: `>=26.1 <26.2` → `>=26.2 <26.3`.
+
+## Verified API changes and the fixes applied
+| 26.2 change | Where | Fix |
+|---|---|---|
+| `FabricTagsProvider.valueLookupBuilder(TagKey)` renamed to `builder(TagKey)`, and `TagAppender.add` now takes `ResourceKey<T>` (block/item id-storage split) | all 3 tag providers | `builder(...)`; wrap each value with `.builtInRegistryHolder().key()` |
+| `BlockTags.SAPLINGS` removed (only `ItemTags.SAPLINGS` remains) | Block/Item tag providers | dropped block-side entry; add sapling to `ItemTags.SAPLINGS` directly |
+| Signs became **block models**; `BlockModelGenerators.createHangingSign(...)` removed; `BlockFamily.Builder.hangingSign(Block,Block)` added | ModelProvider, BlockFamilies | added `.hangingSign(...)` to the CHARRED family; `family.generateFor()` now emits sign + hanging-sign block models; removed the standalone call |
+| `BlockEntityType.SIGN/HANGING_SIGN` moved to new `BlockEntityTypes` holder class | DesolationRegistries | import + refs → `BlockEntityTypes.*` |
+| `RecipeProvider.hangingSign(...)` → `hangingSignBuilder(ItemLike, Ingredient)` (returns a builder) | RecipeProvider | build + `.group/.unlockedBy/.save(exporter)` |
+| `TreeConfiguration.TreeConfigurationBuilder` now requires a trailing dirt `BlockStateProvider` | ConfiguredFeatures (4 trees) | appended `BlockStateProvider.simple(Blocks.DIRT.defaultBlockState())` |
+| `SurfaceRules.isBiome(ResourceKey...)` → `isBiome(HolderGetter<Biome>, ResourceKey...)` and now **resolves keys eagerly** | SurfaceRules + BiolithGeneration | see architectural note below |
+| `BlockPos.getCenter()` removed | DigAshGoal | `Vec3.atCenterOf(blockPos)` |
+| `StatePropertiesPredicate` moved `advancements.criterion` → `advancements.predicates` | BlockLootTableProvider | import path |
+| Block render pass auto-detected from sprite alpha; no code render-layer API (Agent C) | ModelProvider / DesolationClient | `force_translucent` for leaves; stale comment updated |
+
+## Architecturally significant decision — surface rules (please review)
+`SurfaceRules.isBiome` in 26.2 resolves biome keys **eagerly** against a `HolderGetter<Biome>`, so the
+rules can only be built once a biome registry containing this mod's (dynamic) biomes exists. The rules
+were previously registered eagerly in `onInitialize()`, where no such registry is available.
+**Implemented:** registration was moved into `DynamicRegistrySetupCallback`, which supplies a
+`RegistryAccess` from which `lookupOrThrow(Registries.BIOME)` yields the getter. This compiles and
+datagen/build are green, but it changes *when* Biolith receives the rules — confirm in-world that the
+Charred Forest surface (charred soil layer) still generates; if Biolith consumes rules before this
+callback fires, the registration point may need to move.
+
+## Known asset gap — sign textures (manual step)
+Datagen now emits 26.2 sign **block** models parented to `minecraft:block/template_sign_rot_*`, referencing
+`desolation:block/charred_sign` and `desolation:block/charred_hanging_sign` textures that do **not** exist yet.
+The mod only ships the old entity-atlas textures (`textures/entity/signs/charred.png`,
+`.../signs/hanging/charred.png`). Slice them into the new block layout with Mojang's Slicer
+(https://github.com/Mojang/slicer) → `textures/block/charred_sign.png`, `.../charred_hanging_sign.png`
+(and optionally `textures/gui/sign/charred.png`). Until then charred signs render with a missing texture;
+everything else is unaffected.

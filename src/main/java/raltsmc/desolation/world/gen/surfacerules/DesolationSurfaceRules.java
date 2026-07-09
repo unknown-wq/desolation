@@ -1,5 +1,7 @@
 package raltsmc.desolation.world.gen.surfacerules;
 
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.SurfaceRules;
@@ -18,11 +20,14 @@ public class DesolationSurfaceRules {
         return SurfaceRules.state(block.defaultBlockState());
     }
 
-	public static SurfaceRules.RuleSource createRules() {
+	public static SurfaceRules.RuleSource createRules(HolderGetter<Biome> biomes) {
 
-        // Biome-level rules
+        // Biome-level rules. isBiome now resolves the biome keys eagerly against a
+        // HolderGetter (26.2), so it must be supplied a biome registry that already
+        // contains this mod's biomes (see DesolationBiolithGeneration).
         SurfaceRules.RuleSource charredForest = SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(0, false, 6, CaveSurface.FLOOR),
-                SurfaceRules.ifTrue(SurfaceRules.isBiome(DesolationBiomes.CHARRED_FOREST,
+                SurfaceRules.ifTrue(SurfaceRules.isBiome(biomes,
+                        DesolationBiomes.CHARRED_FOREST,
                         DesolationBiomes.CHARRED_FOREST_CLEARING,
                         DesolationBiomes.CHARRED_FOREST_SMALL),
             SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(0, 0),

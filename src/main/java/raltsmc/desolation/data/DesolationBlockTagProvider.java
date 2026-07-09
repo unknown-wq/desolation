@@ -17,96 +17,93 @@ public class DesolationBlockTagProvider extends FabricTagsProvider.BlockTagsProv
 
 	@Override
 	public void addTags(HolderLookup.Provider registries) {
-		valueLookupBuilder(BlockTags.MINEABLE_WITH_AXE)
-			.add(DesolationBlocks.CHARRED_FENCE_GATE);
+		builder(BlockTags.MINEABLE_WITH_AXE)
+			.add(DesolationBlocks.CHARRED_FENCE_GATE.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.MINEABLE_WITH_HOE)
-			.add(DesolationBlocks.CHARRED_BRANCHES);
+		builder(BlockTags.MINEABLE_WITH_HOE)
+			.add(DesolationBlocks.CHARRED_BRANCHES.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
-			.add(DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK)
-			.add(DesolationBlocks.COOLED_EMBER_BLOCK)
-			.add(DesolationBlocks.EMBER_BLOCK);
+		builder(BlockTags.MINEABLE_WITH_PICKAXE)
+			.add(DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.COOLED_EMBER_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.EMBER_BLOCK.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.MINEABLE_WITH_SHOVEL)
-			.add(DesolationBlocks.ASH_BLOCK)
-			.add(DesolationBlocks.ASH_LAYER_BLOCK)
-			.add(DesolationBlocks.CHARRED_SOIL);
+		builder(BlockTags.MINEABLE_WITH_SHOVEL)
+			.add(DesolationBlocks.ASH_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.ASH_LAYER_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_SOIL.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.SWORD_EFFICIENT)
-			.add(DesolationBlocks.ASH_BRAMBLE);
+		builder(BlockTags.SWORD_EFFICIENT)
+			.add(DesolationBlocks.ASH_BRAMBLE.builtInRegistryHolder().key());
 
 
-		valueLookupBuilder(BlockTags.FLOWER_POTS)
-			.add(DesolationBlocks.POTTED_CHARRED_SAPLING);
+		builder(BlockTags.FLOWER_POTS)
+			.add(DesolationBlocks.POTTED_CHARRED_SAPLING.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.LEAVES)
-			.add(DesolationBlocks.CHARRED_BRANCHES);
+		builder(BlockTags.LEAVES)
+			.add(DesolationBlocks.CHARRED_BRANCHES.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.INFINIBURN_OVERWORLD)
-			.add(DesolationBlocks.EMBER_BLOCK);
+		builder(BlockTags.INFINIBURN_OVERWORLD)
+			.add(DesolationBlocks.EMBER_BLOCK.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.LOGS)
+		builder(BlockTags.LOGS)
 			.addTag(DesolationBlockTags.CHARRED_LOGS);
 
-		valueLookupBuilder(BlockTags.PLANKS)
-			.add(DesolationBlocks.CHARRED_PLANKS);
+		builder(BlockTags.PLANKS)
+			.add(DesolationBlocks.CHARRED_PLANKS.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.SAPLINGS)
-			.add(DesolationBlocks.CHARRED_SAPLING);
+		builder(BlockTags.CEILING_HANGING_SIGNS)
+			.add(DesolationBlocks.CHARRED_HANGING_SIGN.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.CEILING_HANGING_SIGNS)
-			.add(DesolationBlocks.CHARRED_HANGING_SIGN);
+		builder(BlockTags.WALL_HANGING_SIGNS)
+			.add(DesolationBlocks.CHARRED_WALL_HANGING_SIGN.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WALL_HANGING_SIGNS)
-			.add(DesolationBlocks.CHARRED_WALL_HANGING_SIGN);
+		builder(BlockTags.STANDING_SIGNS)
+			.add(DesolationBlocks.CHARRED_SIGN.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.STANDING_SIGNS)
-			.add(DesolationBlocks.CHARRED_SIGN);
+		builder(BlockTags.WALL_SIGNS)
+			.add(DesolationBlocks.CHARRED_WALL_SIGN.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WALL_SIGNS)
-			.add(DesolationBlocks.CHARRED_WALL_SIGN);
+		builder(BlockTags.WOODEN_BUTTONS)
+			.add(DesolationBlocks.CHARRED_BUTTON.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_BUTTONS)
-			.add(DesolationBlocks.CHARRED_BUTTON);
+		builder(BlockTags.WOODEN_DOORS)
+			.add(DesolationBlocks.CHARRED_DOOR.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_DOORS)
-			.add(DesolationBlocks.CHARRED_DOOR);
+		builder(BlockTags.WOODEN_FENCES)
+			.add(DesolationBlocks.CHARRED_FENCE.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_FENCES)
-			.add(DesolationBlocks.CHARRED_FENCE);
+		builder(BlockTags.WOODEN_PRESSURE_PLATES)
+			.add(DesolationBlocks.CHARRED_PRESSURE_PLATE.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_PRESSURE_PLATES)
-			.add(DesolationBlocks.CHARRED_PRESSURE_PLATE);
+		builder(BlockTags.WOODEN_SLABS)
+			.add(DesolationBlocks.CHARRED_SLAB.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_SLABS)
-			.add(DesolationBlocks.CHARRED_SLAB);
+		builder(BlockTags.WOODEN_STAIRS)
+			.add(DesolationBlocks.CHARRED_STAIRS.builtInRegistryHolder().key());
 
-		valueLookupBuilder(BlockTags.WOODEN_STAIRS)
-			.add(DesolationBlocks.CHARRED_STAIRS);
-
-		valueLookupBuilder(BlockTags.WOODEN_TRAPDOORS)
-			.add(DesolationBlocks.CHARRED_TRAPDOOR);
+		builder(BlockTags.WOODEN_TRAPDOORS)
+			.add(DesolationBlocks.CHARRED_TRAPDOOR.builtInRegistryHolder().key());
 
 
-		valueLookupBuilder(DesolationBlockTags.CHARRED_LOGS)
-			.add(DesolationBlocks.CHARRED_LOG)
-			.add(DesolationBlocks.CHARRED_WOOD)
-			.add(DesolationBlocks.STRIPPED_CHARRED_LOG)
-			.add(DesolationBlocks.STRIPPED_CHARRED_WOOD);
+		builder(DesolationBlockTags.CHARRED_LOGS)
+			.add(DesolationBlocks.CHARRED_LOG.builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_WOOD.builtInRegistryHolder().key())
+			.add(DesolationBlocks.STRIPPED_CHARRED_LOG.builtInRegistryHolder().key())
+			.add(DesolationBlocks.STRIPPED_CHARRED_WOOD.builtInRegistryHolder().key());
 
-		valueLookupBuilder(DesolationBlockTags.SCORCHED_EARTH)
-			.add(DesolationBlocks.ASH_BLOCK)
-			.add(DesolationBlocks.CHARRED_SOIL)
-			.add(DesolationBlocks.COOLED_EMBER_BLOCK)
-			.add(DesolationBlocks.EMBER_BLOCK);
+		builder(DesolationBlockTags.SCORCHED_EARTH)
+			.add(DesolationBlocks.ASH_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.CHARRED_SOIL.builtInRegistryHolder().key())
+			.add(DesolationBlocks.COOLED_EMBER_BLOCK.builtInRegistryHolder().key())
+			.add(DesolationBlocks.EMBER_BLOCK.builtInRegistryHolder().key());
 
 
-		valueLookupBuilder(ConventionalBlockTags.STRIPPED_LOGS)
-			.add(DesolationBlocks.STRIPPED_CHARRED_LOG);
+		builder(ConventionalBlockTags.STRIPPED_LOGS)
+			.add(DesolationBlocks.STRIPPED_CHARRED_LOG.builtInRegistryHolder().key());
 
-		valueLookupBuilder(ConventionalBlockTags.STRIPPED_WOODS)
-			.add(DesolationBlocks.STRIPPED_CHARRED_WOOD);
+		builder(ConventionalBlockTags.STRIPPED_WOODS)
+			.add(DesolationBlocks.STRIPPED_CHARRED_WOOD.builtInRegistryHolder().key());
 
 	}
 }

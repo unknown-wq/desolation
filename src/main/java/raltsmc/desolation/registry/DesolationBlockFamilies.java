@@ -9,6 +9,7 @@ public class DesolationBlockFamilies {
             .fenceGate(DesolationBlocks.CHARRED_FENCE_GATE)
             .pressurePlate(DesolationBlocks.CHARRED_PRESSURE_PLATE)
             .sign(DesolationBlocks.CHARRED_SIGN, DesolationBlocks.CHARRED_WALL_SIGN)
+            .hangingSign(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.CHARRED_WALL_HANGING_SIGN)
             .slab(DesolationBlocks.CHARRED_SLAB)
             .stairs(DesolationBlocks.CHARRED_STAIRS)
             .door(DesolationBlocks.CHARRED_DOOR)
