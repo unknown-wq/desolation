@@ -1,10 +1,19 @@
-# Desolation ![environment: any](https://img.shields.io/badge/environment-any-4caf50?style=flat-square) ![Mod loader: Fabric](https://img.shields.io/badge/modloader-Fabric-1976d2?style=flat-square) ![Minecraft: 26.2](https://img.shields.io/badge/minecraft-26.2-brightgreen?style=flat-square) ![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+# Desolation — Fabric port for Minecraft 26.2 ![environment: any](https://img.shields.io/badge/environment-any-4caf50?style=flat-square) ![Mod loader: Fabric](https://img.shields.io/badge/modloader-Fabric-1976d2?style=flat-square) ![Minecraft: 26.2](https://img.shields.io/badge/minecraft-26.2-brightgreen?style=flat-square) ![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 > Wildfires bring both destruction and renewal.
 
+> ⚠️ **Unofficial port.** This is **not** an official release — it's a community port of the
+> **Desolation** Fabric mod to **Minecraft 26.2** (with a 26.1.2 build as well). It is not
+> affiliated with or endorsed by the original mod authors.
+>
+> Everything has been debugged and **works properly**. The one thing intentionally left out:
+> **boats have been cut**, because porting them was more effort than it was worth. Nothing else
+> is missing.
+
 **Desolation** is a Fabric mod that adds the aftermath of a wildfire to Minecraft: a scorched
 **Charred Forest** biome where blackened trees, ash and smouldering embers replace the greenery —
-along with the plants and creatures that reclaim the burnt ground.
+along with the plants and creatures that reclaim the burnt ground. This repository is the
+**Desolation Fabric 26.2 port** — a build of the mod updated to run on the latest Minecraft release.
 
 ## Features
 
@@ -61,6 +70,13 @@ The jar files are written to `build/libs`. To regenerate the data-driven assets
 
 Porting notes and the full 26.1.2 → 26.2 API migration are documented in
 [`MIGRATION.md`](MIGRATION.md).
+
+### Port status
+
+Everything in this **Desolation Fabric 26.2** port is tested and working. The only content
+deliberately dropped during the port is the **charred boats** — they were omitted because
+porting them wasn't worth the effort. All other blocks, biomes, creatures and features behave
+as in the original.
 
 ## License
 
