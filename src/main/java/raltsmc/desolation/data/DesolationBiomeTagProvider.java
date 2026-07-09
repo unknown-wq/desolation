@@ -68,5 +68,10 @@ public class DesolationBiomeTagProvider extends FabricTagsProvider<Biome> {
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
+
+		builder(DesolationBiomeTags.CHARRED_FORESTS)
+			.addOptional(DesolationBiomes.CHARRED_FOREST)
+			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
+			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
 	}
 }
