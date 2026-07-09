@@ -291,3 +291,14 @@ The mod only ships the old entity-atlas textures (`textures/entity/signs/charred
 (https://github.com/Mojang/slicer) → `textures/block/charred_sign.png`, `.../charred_hanging_sign.png`
 (and optionally `textures/gui/sign/charred.png`). Until then charred signs render with a missing texture;
 everything else is unaffected.
+
+### Surface rules — follow-up fix (runtime crash resolved)
+The `DynamicRegistrySetupCallback` approach crashed at world load: `SurfaceRules.isBiome`
+calls `getter.getOrThrow(ResourceKey)`, which resolves biome **keys eagerly** and throws
+`Missing element ... desolation:charred_forest` because the mod's data-driven biomes are not in
+the registry yet when Biolith builds the rule. Fix: the condition is now built from a **biome tag**
+(`desolation:charred_forests`) via `new SurfaceRules.BiomeConditionSource(biomes.getOrThrow(TAG))`.
+`getOrThrow(TagKey)` returns a lazy `HolderSet.Named` that binds during world generation (Biolith
+stores the rule in `SurfaceRuleCollector.OVERWORLD` and materializes it in `MixinSurfaceSystem`),
+so no biome needs to exist at registration time. Required an access-widener on
+`SurfaceRules$BiomeConditionSource` (private record ctor) and a new datagen biome tag.

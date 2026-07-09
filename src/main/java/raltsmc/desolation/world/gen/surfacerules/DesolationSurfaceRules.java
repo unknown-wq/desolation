@@ -1,13 +1,14 @@
 package raltsmc.desolation.world.gen.surfacerules;
 
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.placement.CaveSurface;
-import raltsmc.desolation.registry.DesolationBiomes;
 import raltsmc.desolation.registry.DesolationBlocks;
+import raltsmc.desolation.tag.DesolationBiomeTags;
 
 // Contains all of the surface rules used by Desolation
 public class DesolationSurfaceRules {
@@ -22,14 +23,13 @@ public class DesolationSurfaceRules {
 
 	public static SurfaceRules.RuleSource createRules(HolderGetter<Biome> biomes) {
 
-        // Biome-level rules. isBiome now resolves the biome keys eagerly against a
-        // HolderGetter (26.2), so it must be supplied a biome registry that already
-        // contains this mod's biomes (see DesolationBiolithGeneration).
+        // Biome-level rules. 26.2's SurfaceRules.isBiome resolves biome keys eagerly against a
+        // HolderGetter, which fails for this mod's data-driven biomes when the rule is built (they
+        // are not in the registry yet). Instead we build the biome condition from a lazily-resolved
+        // tag HolderSet, which binds during world generation once the biomes and tags are loaded.
+        HolderSet<Biome> charredForests = biomes.getOrThrow(DesolationBiomeTags.CHARRED_FORESTS);
         SurfaceRules.RuleSource charredForest = SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(0, false, 6, CaveSurface.FLOOR),
-                SurfaceRules.ifTrue(SurfaceRules.isBiome(biomes,
-                        DesolationBiomes.CHARRED_FOREST,
-                        DesolationBiomes.CHARRED_FOREST_CLEARING,
-                        DesolationBiomes.CHARRED_FOREST_SMALL),
+                SurfaceRules.ifTrue(new SurfaceRules.BiomeConditionSource(charredForests),
             SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(0, 0),
                     block(DesolationBlocks.CHARRED_SOIL)),
                     block(Blocks.DIRT))));

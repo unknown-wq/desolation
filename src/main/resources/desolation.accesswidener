@@ -19,3 +19,8 @@ accessible	method	net/minecraft/client/data/models/BlockModelGenerators createTr
 accessible	class	net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider
 accessible	class	net/minecraft/client/data/models/BlockModelGenerators$WoodProvider
 accessible	field	net/minecraft/client/data/models/BlockModelGenerators$BlockFamilyProvider skipGeneratingModelsFor Ljava/util/Set;
+
+# Surface rules (26.2): build a biome condition from a lazily-resolved tag HolderSet
+# so the mod's data-driven biomes need not be present when the rule is constructed.
+accessible	class	net/minecraft/world/level/levelgen/SurfaceRules$BiomeConditionSource
+accessible	method	net/minecraft/world/level/levelgen/SurfaceRules$BiomeConditionSource <init> (Lnet/minecraft/core/HolderSet;)V
