@@ -2,12 +2,12 @@ package raltsmc.desolation.init.server;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,19 +21,19 @@ public class DesolationServerNetworking {
     }
 
     public static void init() {
-        PayloadTypeRegistry.playC2S().register(CinderSoulC2SPacket.ID, CinderSoulC2SPacket.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(CinderSoulC2SPacket.ID, CinderSoulC2SPacket.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(CinderSoulC2SPacket.ID, (payload, context) -> context.server().execute(() -> {
-            ServerPlayerEntity player = context.player();
-            ServerWorld world = player.getWorld();
+            ServerPlayer player = context.player();
+            ServerLevel world = player.level();
             Random random = ThreadLocalRandom.current();
 
-            switch (payload.type()) {
+            switch (payload.action()) {
                 case DASH -> {
-                    world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_ENDER_DRAGON_GROWL, SoundCategory.PLAYERS, 1F, 1.6F);
+                    world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 1F, 1.6F);
                 }
                 case READY -> {
-                    List<Vec3d> points = new ArrayList<>();
+                    List<Vec3> points = new ArrayList<>();
 
                     double phi = Math.PI * (3. - Math.sqrt(5.));
                     for (int i = 0; i <= 150; ++i) {
@@ -43,16 +43,16 @@ public class DesolationServerNetworking {
                         double x = Math.cos(theta) * radius;
                         double z = Math.sin(theta) * radius;
 
-                        points.add(new Vec3d(player.getX() + x * 0.5, player.getY() + 1 + y, player.getZ() + z * 0.5));
+                        points.add(new Vec3(player.getX() + x * 0.5, player.getY() + 1 + y, player.getZ() + z * 0.5));
                     }
 
-                    for (Vec3d vec : points) {
-                        Vec3d vel = vec.subtract(player.getPos())
+                    for (Vec3 vec : points) {
+                        Vec3 vel = vec.subtract(player.position())
                                 .normalize()
-                                .multiply(0.12 + random.nextDouble() * 0.03)
-                                .add(player.getVelocity().multiply(1, 0.1, 1))
+                                .scale(0.12 + random.nextDouble() * 0.03)
+                                .add(player.getDeltaMovement().multiply(1, 0.1, 1))
                                 .multiply(1.25, 1, 1.25);
-                        world.spawnParticles(ParticleTypes.FLAME, vec.x, vec.y, vec.z, 1, vel.x, vel.y, vel.z, .1);
+                        world.sendParticles(ParticleTypes.FLAME, vec.x, vec.y, vec.z, 1, vel.x, vel.y, vel.z, .1);
                     }
                 }
                 case TICK -> {
@@ -64,9 +64,9 @@ public class DesolationServerNetworking {
                     double h = random.nextDouble() * 6.0D / 16.0D;
                     double i = (random.nextDouble() - 0.5D) / 5.0D;
 
-                    world.spawnParticles(ParticleTypes.FLAME, d + g, e + h, f + g, 1, 0d, 0.1d + i, 0d, .1);
+                    world.sendParticles(ParticleTypes.FLAME, d + g, e + h, f + g, 1, 0d, 0.1d + i, 0d, .1);
                     if (random.nextDouble() < 0.25) {
-                        world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLOCK_FIRE_AMBIENT, SoundCategory.AMBIENT, .8F, 1F);
+                        world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FIRE_AMBIENT, SoundSource.AMBIENT, .8F, 1F);
                     }
                 }
             }

@@ -1,9 +1,9 @@
 package raltsmc.desolation.tag;
 
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.biome.Biome;
 import raltsmc.desolation.Desolation;
 
 @SuppressWarnings("SameParameterValue")
@@ -16,10 +16,10 @@ public final class DesolationBiomeTags {
 	}
 
 	private static TagKey<Biome> of(String path) {
-		return DesolationBiomeTags.of(Identifier.of(Desolation.MOD_ID, path));
+		return DesolationBiomeTags.of(Identifier.fromNamespaceAndPath(Desolation.MOD_ID, path));
 	}
 
 	private static TagKey<Biome> of(Identifier id) {
-		return TagKey.of(RegistryKeys.BIOME, id);
+		return TagKey.create(Registries.BIOME, id);
 	}
 }

@@ -1,22 +1,21 @@
 package raltsmc.desolation.entity.ai.goal;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.loot.context.LootContextTypes;
-import net.minecraft.loot.context.LootWorldContext;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.block.BlockStatePredicate;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import raltsmc.desolation.entity.AshScuttlerEntity;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.registry.DesolationItems;
@@ -26,11 +25,11 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class DigAshGoal extends MoveToTargetPosGoal {
+public class DigAshGoal extends MoveToBlockGoal {
     private static final Predicate<BlockState> ASH_PREDICATE;
     private static final long DIG_DURATION_TICKS = 20;
     private final AshScuttlerEntity mob;
-    private final World world;
+    private final Level world;
     private final int range;
     private final int maxDY;
     private int digTick;
@@ -38,14 +37,14 @@ public class DigAshGoal extends MoveToTargetPosGoal {
     public DigAshGoal(AshScuttlerEntity mob, double speed, int range, int maxDY) {
         super(mob, speed, range, maxDY);
         this.mob = mob;
-        this.world = mob.getWorld();
+        this.world = mob.level();
         this.range = range;
         this.maxDY = maxDY;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK, Control.JUMP));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
     }
 
-    public boolean canStart() {
-        return mob.isSearching() && this.getNearestBlock(mob.getBlockPos(), range, maxDY);
+    public boolean canUse() {
+        return mob.isSearching() && this.getNearestBlock(mob.blockPosition(), range, maxDY);
     }
 
     public void start() {
@@ -59,35 +58,35 @@ public class DigAshGoal extends MoveToTargetPosGoal {
     }
 
     public void tick() {
-        Vec3d location = targetPos.toCenterPos();
+        Vec3 location = blockPos.getCenter();
 
-        if (!location.isInRange(mob.getPos(), getDesiredDistanceToTarget())) {
-            ++tryingTime;
-            Vec3d vel = mob.getVelocity();
-            if (this.shouldResetPath() && new Vec3d(vel.x, 0, vel.z).lengthSquared() < 0.2f) {
-                mob.setVelocity(vel.x, 0.5f, vel.z);
-                mob.getNavigation().startMovingTo(location.getX(), location.getY(), location.getZ(), speed);
+        if (!location.closerThan(mob.position(), acceptedDistance())) {
+            ++tryTicks;
+            Vec3 vel = mob.getDeltaMovement();
+            if (this.shouldRecalculatePath() && new Vec3(vel.x, 0, vel.z).lengthSqr() < 0.2f) {
+                mob.setDeltaMovement(vel.x, 0.5f, vel.z);
+                mob.getNavigation().moveTo(location.x, location.y, location.z, speedModifier);
             }
         } else {
-            --tryingTime;
+            --tryTicks;
             if (++digTick >= DIG_DURATION_TICKS) {
-                if (world instanceof ServerWorld serverWorld) {
+                if (world instanceof ServerLevel serverLevel) {
                     assert world.getServer() != null;
 
-                    world.breakBlock(targetPos, false, mob, 1);
-                    world.syncWorldEvent(2001, targetPos, 0);
+                    world.destroyBlock(blockPos, false, mob, 1);
+                    world.levelEvent(2001, blockPos, 0);
 
-                    LootTable lootTable = world.getServer().getReloadableRegistries().getLootTable(DesolationLootTables.ASH_SCUTTLER_DIG);
-                    LootWorldContext parameters = new LootWorldContext.Builder(serverWorld)
-                            .add(LootContextParameters.ORIGIN, location)
-                            .add(LootContextParameters.THIS_ENTITY, mob)
-                            .build(LootContextTypes.GIFT);
+                    LootTable lootTable = world.getServer().reloadableRegistries().getLootTable(DesolationLootTables.ASH_SCUTTLER_DIG);
+                    LootParams parameters = new LootParams.Builder(serverLevel)
+                            .withParameter(LootContextParams.ORIGIN, location)
+                            .withParameter(LootContextParams.THIS_ENTITY, mob)
+                            .create(LootContextParamSets.GIFT);
 
-                    ObjectArrayList<ItemStack> list = lootTable.generateLoot(parameters);
+                    ObjectArrayList<ItemStack> list = lootTable.getRandomItems(parameters);
                     for (ItemStack itemStack : list) {
-                        ItemEntity itemEntity = new ItemEntity(world, location.getX(), location.getY(), location.getZ(), itemStack);
-                        itemEntity.setToDefaultPickupDelay();
-                        world.spawnEntity(itemEntity);
+                        ItemEntity itemEntity = new ItemEntity(world, location.x, location.y, location.z, itemStack);
+                        itemEntity.setDefaultPickUpDelay();
+                        world.addFreshEntity(itemEntity);
                     }
                 }
                 stop();
@@ -95,27 +94,27 @@ public class DigAshGoal extends MoveToTargetPosGoal {
         }
     }
 
-    public double getDesiredDistanceToTarget() {
+    public double acceptedDistance() {
         return 2.0D;
     }
 
-    protected boolean isTargetPos(WorldView world, BlockPos pos) {
+    protected boolean isValidTarget(LevelReader world, BlockPos pos) {
         return ASH_PREDICATE.test(world.getBlockState(pos));
     }
 
     protected boolean getNearestBlock(BlockPos startPos, int maxRange, int maxDY) {
-        Optional<BlockPos> closestAsh = BlockPos.findClosest(startPos, maxRange, maxDY,
+        Optional<BlockPos> closestAsh = BlockPos.findClosestMatch(startPos, maxRange, maxDY,
                 (blockPos) -> world.getBlockState(blockPos).getBlock() == DesolationBlocks.ASH_LAYER_BLOCK
                         || world.getBlockState(blockPos).getBlock() == DesolationBlocks.ASH_BLOCK);
         if (closestAsh.isPresent()) {
-            this.targetPos = closestAsh.get();
+            this.blockPos = closestAsh.get();
             return true;
         }
-        if (world.isClient) {
-            double pVel = world.random.nextGaussian() * 0.02D;
-            world.addParticleClient(ParticleTypes.SMOKE, mob.getX(), mob.getY(), mob.getZ(), pVel, pVel, pVel);
+        if (world.isClientSide()) {
+            double pVel = world.getRandom().nextGaussian() * 0.02D;
+            world.addParticle(ParticleTypes.SMOKE, mob.getX(), mob.getY(), mob.getZ(), pVel, pVel, pVel);
         } else {
-            ItemScatterer.spawn(world, mob.getX(), mob.getY(), mob.getZ(),
+            Containers.dropItemStack(world, mob.getX(), mob.getY(), mob.getZ(),
                     new ItemStack(DesolationItems.CINDERFRUIT));
         }
         stop();
@@ -123,7 +122,6 @@ public class DigAshGoal extends MoveToTargetPosGoal {
     }
 
     static {
-        ASH_PREDICATE = BlockStatePredicate.forBlock(DesolationBlocks.ASH_LAYER_BLOCK)
-                .or(BlockStatePredicate.forBlock(DesolationBlocks.ASH_BLOCK));
+        ASH_PREDICATE = state -> state.is(DesolationBlocks.ASH_LAYER_BLOCK) || state.is(DesolationBlocks.ASH_BLOCK);
     }
 }

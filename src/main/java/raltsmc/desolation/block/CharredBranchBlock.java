@@ -1,22 +1,20 @@
 package raltsmc.desolation.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.UntintedParticleLeavesBlock;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.UntintedParticleLeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.tag.DesolationBlockTags;
 
@@ -37,63 +35,62 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
     public static final int MINIMUM_DELAY = 60;
     public static final int DELAY_SPREAD = 100;
 
-    public CharredBranchBlock(Settings settings) {
-        super(0.01f, ParticleTypes.ASH, settings);
-        this.setDefaultState(this.stateManager.getDefaultState()
-                .with(LeavesBlock.DISTANCE, DISTANCE_SUPPORTED)
-                .with(LeavesBlock.PERSISTENT, false)
-                .with(LeavesBlock.WATERLOGGED, false));
+    public CharredBranchBlock(Properties properties) {
+        super(0.01f, ParticleTypes.ASH, properties);
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(LeavesBlock.DISTANCE, DISTANCE_SUPPORTED)
+                .setValue(LeavesBlock.PERSISTENT, false)
+                .setValue(LeavesBlock.WATERLOGGED, false));
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
-    public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
+    public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
         return 0.35F;
     }
 
     @Override
-    public boolean isTransparent(BlockState state) {
+    public boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-        if (state.get(WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+    public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        if (state.getValue(LeavesBlock.WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
         return state;
     }
 
     @Override
-    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        if (!state.get(LeavesBlock.PERSISTENT) &&
-                state.get(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED &&
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+        if (!state.getValue(LeavesBlock.PERSISTENT) &&
+                state.getValue(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED &&
                 CharredBranchBlock.findSupportingTrunk(world, pos).isEmpty()) {
-            world.setBlockState(pos, state.with(LeavesBlock.DISTANCE, DISTANCE_UNSUPPORTED), 3);
+            world.setBlock(pos, state.setValue(LeavesBlock.DISTANCE, DISTANCE_UNSUPPORTED), 3);
         }
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        return this.getDefaultState()
-                .with(LeavesBlock.PERSISTENT, true)
-                .with(LeavesBlock.WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        FluidState fluidState = ctx.getLevel().getFluidState(ctx.getClickedPos());
+        return this.defaultBlockState()
+                .setValue(LeavesBlock.PERSISTENT, true)
+                .setValue(LeavesBlock.WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
-    protected static void notifyLossOfSupport(World world, BlockPos trunkPos) {
+    protected static void notifyLossOfSupport(Level world, BlockPos trunkPos) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         findSupportedBranches(world, trunkPos).forEach((pos, state) -> {
             // Add a delay to reduce repeat checks, and spread the work over many seconds.
-            world.scheduleBlockTick(pos, state.getBlock(), MINIMUM_DELAY + random.nextInt(DELAY_SPREAD));
+            world.scheduleTick(pos, state.getBlock(), MINIMUM_DELAY + random.nextInt(DELAY_SPREAD));
         });
     }
 
     // Desolation branches are leaves that do not require contiguous support,
     // so we have to search the entire taxicab volume for blocks to notify.
-    protected static HashMap<BlockPos, BlockState> findSupportedBranches(World world, BlockPos trunkPos) {
+    protected static HashMap<BlockPos, BlockState> findSupportedBranches(Level world, BlockPos trunkPos) {
         HashMap<BlockPos, BlockState> found = new HashMap<>(256);
         int x, y, z, xLimit, zLimit;
 
@@ -102,12 +99,12 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
             for (x = -xLimit; x <= xLimit; ++x) {
                 zLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(x) - Math.abs(y);
                 for (z = -zLimit; z <= zLimit; ++z) {
-                    BlockPos pos = trunkPos.add(x, y, z);
+                    BlockPos pos = trunkPos.offset(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    if (state.isOf(DesolationBlocks.CHARRED_BRANCHES) &&
-                            !state.get(LeavesBlock.PERSISTENT) &&
-                            state.get(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED) {
+                    if (state.is(DesolationBlocks.CHARRED_BRANCHES) &&
+                            !state.getValue(LeavesBlock.PERSISTENT) &&
+                            state.getValue(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED) {
                         found.put(pos, state);
                     }
                 }
@@ -119,7 +116,7 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
 
     // Desolation branches are leaves that do not require contiguous support,
     // so we may need to search the entire taxicab volume for a supporting log.
-    protected static Optional<BlockPos> findSupportingTrunk(World world, BlockPos branchPos) {
+    protected static Optional<BlockPos> findSupportingTrunk(Level world, BlockPos branchPos) {
         int x, y, z, xLimit, zLimit;
 
         for (y = -SUPPORTED_MAX_TAXICAB_DISTANCE; y <= SUPPORTED_MAX_TAXICAB_DISTANCE; ++y) {
@@ -127,10 +124,10 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
             for (x = -xLimit; x <= xLimit; ++x) {
                 zLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(x) - Math.abs(y);
                 for (z = -zLimit; z <= zLimit; ++z) {
-                    BlockPos pos = branchPos.add(x, y, z);
+                    BlockPos pos = branchPos.offset(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    if (state.isIn(DesolationBlockTags.CHARRED_LOGS)) {
+                    if (state.is(DesolationBlockTags.CHARRED_LOGS)) {
                         return Optional.of(pos);
                     }
                 }

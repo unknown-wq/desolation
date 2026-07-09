@@ -1,65 +1,60 @@
 package raltsmc.desolation.data;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.condition.BlockStatePropertyLootCondition;
-import net.minecraft.loot.condition.RandomChanceLootCondition;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
-import net.minecraft.predicate.StatePredicate;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import raltsmc.desolation.block.CinderfruitPlantBlock;
 import raltsmc.desolation.registry.DesolationBlocks;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 import raltsmc.desolation.registry.DesolationItems;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DesolationBlockLootTableProvider extends FabricBlockLootTableProvider {
-	protected DesolationBlockLootTableProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+public class DesolationBlockLootTableProvider extends FabricBlockLootSubProvider {
+	protected DesolationBlockLootTableProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
 		super(output, registriesFuture);
 	}
 
 	@Override
 	public void generate() {
-		//noinspection unused
-		RegistryWrapper.Impl<Enchantment> enchantmentRegistry = this.registries.getOrThrow(RegistryKeys.ENCHANTMENT);
-
-		addDrop(DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK);
-		addDropWithSilkTouch(DesolationBlocks.ASH_LAYER_BLOCK);
-		addDrop(DesolationBlocks.ASH_LAYER_BLOCK, block -> drops(block, DesolationItems.ASH_PILE));
-		addDrop(DesolationBlocks.ASH_BLOCK);
-		addDrop(DesolationBlocks.CHARRED_BRANCHES, LootTable.builder().pool(LootPool.builder()
-				.rolls(ConstantLootNumberProvider.create(2))
-				.with(ItemEntry.builder(Items.STICK).conditionally(RandomChanceLootCondition.builder(0.18f)))));
-		addDrop(DesolationBlocks.CHARRED_BUTTON);
-		addDrop(DesolationBlocks.CHARRED_DOOR, this::doorDrops);
-		addDrop(DesolationBlocks.CHARRED_FENCE);
-		addDrop(DesolationBlocks.CHARRED_FENCE_GATE);
-		addDrop(DesolationBlocks.CHARRED_LOG);
-		addDrop(DesolationBlocks.CHARRED_PLANKS);
-		addDrop(DesolationBlocks.CHARRED_PRESSURE_PLATE);
-		addDrop(DesolationBlocks.CHARRED_SAPLING);
-		addDrop(DesolationBlocks.CHARRED_HANGING_SIGN);
-		addDrop(DesolationBlocks.CHARRED_SIGN);
-		addDrop(DesolationBlocks.CHARRED_SLAB, this::slabDrops);
-		addDrop(DesolationBlocks.CHARRED_SOIL);
-		addDrop(DesolationBlocks.CHARRED_STAIRS);
-		addDrop(DesolationBlocks.CHARRED_TRAPDOOR);
-		addDrop(DesolationBlocks.CHARRED_WOOD);
-		addDrop(DesolationBlocks.CINDERFRUIT_PLANT, block -> this.cropDrops(block,
+		dropSelf(DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK);
+		dropWhenSilkTouch(DesolationBlocks.ASH_LAYER_BLOCK);
+		dropOther(DesolationBlocks.ASH_LAYER_BLOCK, DesolationItems.ASH_PILE);
+		dropSelf(DesolationBlocks.ASH_BLOCK);
+		add(DesolationBlocks.CHARRED_BRANCHES, LootTable.lootTable().withPool(LootPool.lootPool()
+				.setRolls(ConstantValue.exactly(2))
+				.add(LootItem.lootTableItem(Items.STICK).when(LootItemRandomChanceCondition.randomChance(0.18f)))));
+		dropSelf(DesolationBlocks.CHARRED_BUTTON);
+		add(DesolationBlocks.CHARRED_DOOR, this::createDoorTable);
+		dropSelf(DesolationBlocks.CHARRED_FENCE);
+		dropSelf(DesolationBlocks.CHARRED_FENCE_GATE);
+		dropSelf(DesolationBlocks.CHARRED_LOG);
+		dropSelf(DesolationBlocks.CHARRED_PLANKS);
+		dropSelf(DesolationBlocks.CHARRED_PRESSURE_PLATE);
+		dropSelf(DesolationBlocks.CHARRED_SAPLING);
+		dropSelf(DesolationBlocks.CHARRED_HANGING_SIGN);
+		dropSelf(DesolationBlocks.CHARRED_SIGN);
+		add(DesolationBlocks.CHARRED_SLAB, this::createSlabItemTable);
+		dropSelf(DesolationBlocks.CHARRED_SOIL);
+		dropSelf(DesolationBlocks.CHARRED_STAIRS);
+		dropSelf(DesolationBlocks.CHARRED_TRAPDOOR);
+		dropSelf(DesolationBlocks.CHARRED_WOOD);
+		add(DesolationBlocks.CINDERFRUIT_PLANT, block -> this.createCropDrops(block,
 				DesolationItems.CINDERFRUIT, DesolationItems.CINDERFRUIT_SEEDS,
-				BlockStatePropertyLootCondition.builder(DesolationBlocks.CINDERFRUIT_PLANT)
-						.properties(StatePredicate.Builder.create().exactMatch(CinderfruitPlantBlock.AGE, 1))));
-		addDrop(DesolationBlocks.COOLED_EMBER_BLOCK);
-		addDrop(DesolationBlocks.EMBER_BLOCK);
-		addPottedPlantDrops(DesolationBlocks.POTTED_CHARRED_SAPLING);
-		addDrop(DesolationBlocks.STRIPPED_CHARRED_LOG);
-		addDrop(DesolationBlocks.STRIPPED_CHARRED_WOOD);
+				LootItemBlockStatePropertyCondition.hasBlockStateProperties(DesolationBlocks.CINDERFRUIT_PLANT)
+						.setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CinderfruitPlantBlock.AGE, 1))));
+		dropSelf(DesolationBlocks.COOLED_EMBER_BLOCK);
+		dropSelf(DesolationBlocks.EMBER_BLOCK);
+		dropPottedContents(DesolationBlocks.POTTED_CHARRED_SAPLING);
+		dropSelf(DesolationBlocks.STRIPPED_CHARRED_LOG);
+		dropSelf(DesolationBlocks.STRIPPED_CHARRED_WOOD);
 	}
 
 	@Override

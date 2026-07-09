@@ -1,19 +1,28 @@
 package raltsmc.desolation.world.biome;
 
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registerable;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.BiomeMoodSound;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.world.biome.*;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
-import net.minecraft.world.gen.feature.PlacedFeature;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.attribute.AmbientMoodSettings;
+import net.minecraft.world.attribute.AmbientParticle;
+import net.minecraft.world.attribute.AmbientSounds;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import raltsmc.desolation.registry.DesolationEntities;
 import raltsmc.desolation.world.feature.DesolationPlacedFeatures;
+
+import java.util.List;
+import java.util.Optional;
 
 public class BiomeCreator {
     @SuppressWarnings("UnnecessaryReturnStatement")
@@ -21,68 +30,68 @@ public class BiomeCreator {
         return;
     }
 
-    public static Biome createCharredForest(Registerable<Biome> registerable, boolean isClearing, boolean isSmall) {
-        return new Biome.Builder()
-                .generationSettings(createGenerationSettings(registerable, isClearing, isSmall))
-                .spawnSettings(createSpawnSettings())
-                .precipitation(false)
+    public static Biome createCharredForest(BootstrapContext<Biome> context, boolean isClearing, boolean isSmall) {
+        return new Biome.BiomeBuilder()
+                .generationSettings(createGenerationSettings(context, isClearing, isSmall))
+                .mobSpawnSettings(createSpawnSettings())
+                .hasPrecipitation(false)
                 .temperature(0.9F)
                 .downfall(0.1F)
-                .effects((new BiomeEffects.Builder())
+                .specialEffects((new BiomeSpecialEffects.Builder())
                         .waterColor(0x5b646e)
-                        .waterFogColor(0x2a3036)
-                        .fogColor(0xb5b5b5)
-                        .skyColor(0xa1aab3)
-                        .grassColor(0x342d2f)
-                        .foliageColor(0x443d3f)
-                        .particleConfig(new BiomeParticleConfig(ParticleTypes.WHITE_ASH, 0.118093334F))
-                        .loopSound(SoundEvents.AMBIENT_BASALT_DELTAS_LOOP)
-                        .moodSound(new BiomeMoodSound(SoundEvents.AMBIENT_BASALT_DELTAS_MOOD, 6000, 8, 2.0D))
-                        .build()
-                )
+                        .grassColorOverride(0x342d2f)
+                        .foliageColorOverride(0x443d3f)
+                        .build())
+                .setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, 0x2a3036)
+                .setAttribute(EnvironmentAttributes.FOG_COLOR, 0xb5b5b5)
+                .setAttribute(EnvironmentAttributes.SKY_COLOR, 0xa1aab3)
+                .setAttribute(EnvironmentAttributes.AMBIENT_PARTICLES, AmbientParticle.of(ParticleTypes.WHITE_ASH, 0.118093334F))
+                .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, new AmbientSounds(
+                        Optional.of(SoundEvents.AMBIENT_BASALT_DELTAS_LOOP),
+                        Optional.of(new AmbientMoodSettings(SoundEvents.AMBIENT_BASALT_DELTAS_MOOD, 6000, 8, 2.0D)),
+                        List.of()))
                 .build();
     }
 
-    private static GenerationSettings createGenerationSettings(Registerable<Biome> registerable, boolean isClearing, boolean isSmall) {
-        RegistryEntryLookup<ConfiguredCarver<?>> configuredCarvers = registerable.getRegistryLookup(RegistryKeys.CONFIGURED_CARVER);
-        RegistryEntryLookup<PlacedFeature> placedFeatures = registerable.getRegistryLookup(RegistryKeys.PLACED_FEATURE);
+    private static BiomeGenerationSettings createGenerationSettings(BootstrapContext<Biome> context, boolean isClearing, boolean isSmall) {
+        HolderGetter<ConfiguredWorldCarver<?>> configuredCarvers = context.lookup(Registries.CONFIGURED_CARVER);
+        HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
 
-        GenerationSettings.LookupBackedBuilder generationSettings = new GenerationSettings.LookupBackedBuilder(placedFeatures, configuredCarvers);
+        BiomeGenerationSettings.Builder generationSettings = new BiomeGenerationSettings.Builder(placedFeatures, configuredCarvers);
 
-        DefaultBiomeFeatures.addLandCarvers(generationSettings);
-        DefaultBiomeFeatures.addAmethystGeodes(generationSettings);
-        DefaultBiomeFeatures.addDungeons(generationSettings);
-        DefaultBiomeFeatures.addMineables(generationSettings);
-        DefaultBiomeFeatures.addDefaultOres(generationSettings);
-        DefaultBiomeFeatures.addDefaultDisks(generationSettings);
-        DefaultBiomeFeatures.addSprings(generationSettings);
-        generationSettings.feature(GenerationStep.Feature.LOCAL_MODIFICATIONS, placedFeatures.getOrThrow(DesolationPlacedFeatures.GIANT_BOULDER));
+        BiomeDefaultFeatures.addDefaultCarversAndLakes(generationSettings);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(generationSettings);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(generationSettings);
+        BiomeDefaultFeatures.addDefaultOres(generationSettings);
+        BiomeDefaultFeatures.addDefaultSoftDisks(generationSettings);
+        BiomeDefaultFeatures.addDefaultSprings(generationSettings);
+        generationSettings.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, DesolationPlacedFeatures.GIANT_BOULDER);
         if (isSmall) {
             if (!isClearing) {
-                generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.TREES_CHARRED_SMALL));
+                generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.TREES_CHARRED_SMALL);
             }
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.TREES_CHARRED_FALLEN_SMALL));
+            generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.TREES_CHARRED_FALLEN_SMALL);
         } else {
             if (!isClearing) {
-                generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.TREES_CHARRED_LARGE));
+                generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.TREES_CHARRED_LARGE);
             }
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PATCH_CHARRED_SAPLING));
-            generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.TREES_CHARRED_FALLEN_LARGE));
+            generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.PATCH_CHARRED_SAPLING);
+            generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.TREES_CHARRED_FALLEN_LARGE);
         }
-        generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PATCH_SCORCHED_TUFT));
-        generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PATCH_ASH_BRAMBLE));
-        generationSettings.feature(GenerationStep.Feature.VEGETAL_DECORATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PLANT_CINDERFRUIT));
-        generationSettings.feature(GenerationStep.Feature.TOP_LAYER_MODIFICATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PATCH_ASH_LAYER));
-        generationSettings.feature(GenerationStep.Feature.TOP_LAYER_MODIFICATION, placedFeatures.getOrThrow(DesolationPlacedFeatures.PATCH_EMBER_CHUNK));
+        generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.PATCH_SCORCHED_TUFT);
+        generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.PATCH_ASH_BRAMBLE);
+        generationSettings.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, DesolationPlacedFeatures.PLANT_CINDERFRUIT);
+        generationSettings.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, DesolationPlacedFeatures.PATCH_ASH_LAYER);
+        generationSettings.addFeature(GenerationStep.Decoration.TOP_LAYER_MODIFICATION, DesolationPlacedFeatures.PATCH_EMBER_CHUNK);
 
         return generationSettings.build();
     }
 
-    private static SpawnSettings createSpawnSettings() {
-        SpawnSettings.Builder spawnSettings = new SpawnSettings.Builder();
+    private static MobSpawnSettings createSpawnSettings() {
+        MobSpawnSettings.Builder spawnSettings = new MobSpawnSettings.Builder();
 
-        spawnSettings.spawn(SpawnGroup.AMBIENT, 1, new SpawnSettings.SpawnEntry(DesolationEntities.ASH_SCUTTLER, 1, 2));
-        spawnSettings.spawn(SpawnGroup.MONSTER, 1, new SpawnSettings.SpawnEntry(DesolationEntities.BLACKENED, 1, 3));
+        spawnSettings.addSpawn(MobCategory.AMBIENT, 1, new MobSpawnSettings.SpawnerData(DesolationEntities.ASH_SCUTTLER, 1, 2));
+        spawnSettings.addSpawn(MobCategory.MONSTER, 1, new MobSpawnSettings.SpawnerData(DesolationEntities.BLACKENED, 1, 3));
 
         return spawnSettings.build();
     }

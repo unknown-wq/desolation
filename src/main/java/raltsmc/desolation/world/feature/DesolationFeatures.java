@@ -1,14 +1,14 @@
 package raltsmc.desolation.world.feature;
 
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.SingleStateFeatureConfig;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import raltsmc.desolation.Desolation;
 
 public class DesolationFeatures {
-    public static Feature<SingleStateFeatureConfig> GIANT_BOULDER = new GiantBoulderFeature(SingleStateFeatureConfig.CODEC);
+    public static Feature<BlockStateConfiguration> GIANT_BOULDER = new GiantBoulderFeature(BlockStateConfiguration.CODEC);
     public static Feature<ScatteredFeatureConfig> SCATTERED = new ScatteredFeature(ScatteredFeatureConfig.CODEC);
 
     @SuppressWarnings("UnnecessaryReturnStatement")
@@ -22,6 +22,6 @@ public class DesolationFeatures {
     }
 
     private static void register(String name, Feature<?> feature) {
-        Registry.register(Registries.FEATURE, Identifier.of(Desolation.MOD_ID, name), feature);
+        Registry.register(BuiltInRegistries.FEATURE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, name), feature);
     }
 }

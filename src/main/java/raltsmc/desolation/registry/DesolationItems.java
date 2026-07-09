@@ -1,19 +1,22 @@
 package raltsmc.desolation.registry;
 
-import dev.emi.trinkets.api.TrinketItem;
-import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
-import net.minecraft.component.type.ConsumableComponents;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.*;
-import net.minecraft.item.consume.ApplyEffectsConsumeEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
-import raltsmc.desolation.Desolation;
+import net.fabricmc.fabric.api.registry.CompostableRegistry;
+import net.fabricmc.fabric.api.registry.FuelValueEvents;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import raltsmc.desolation.item.AshItem;
 import raltsmc.desolation.item.CinderHeartItem;
 
@@ -52,9 +55,6 @@ public final class DesolationItems {
     public static Item PRIMED_ASH;
     public static Item ACTIVATED_CHARCOAL;
     public static Item AIR_FILTER;
-    public static Item MASK;
-    public static Item GOGGLES;
-    //public static final Item MASK_GOGGLES;
     public static Item CINDERFRUIT;
     public static Item CINDERFRUIT_SEEDS;
     public static Item INFUSED_POWDER;
@@ -68,10 +68,6 @@ public final class DesolationItems {
     @SuppressWarnings("UnnecessaryReturnStatement")
     private DesolationItems() {
         return;
-    }
-
-    public static Item register(Item item, String path) {
-        return Registry.register(Registries.ITEM, Identifier.of(Desolation.MOD_ID, path), item);
     }
 
     static void init() {
@@ -100,38 +96,35 @@ public final class DesolationItems {
         CHARRED_BUTTON = DesolationRegistries.registerBlockItem("charred_button", DesolationBlocks.CHARRED_BUTTON);
         CHARRED_DOOR = DesolationRegistries.registerBlockItem("charred_door", DesolationBlocks.CHARRED_DOOR);
 
-        CHARRED_SIGN = DesolationRegistries.register("charred_sign", settings -> new SignItem(DesolationBlocks.CHARRED_SIGN, DesolationBlocks.CHARRED_WALL_SIGN, settings), new Item.Settings().maxCount(16).useBlockPrefixedTranslationKey());
-        CHARRED_HANGING_SIGN = DesolationRegistries.register("charred_hanging_sign", settings -> new HangingSignItem(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.CHARRED_WALL_HANGING_SIGN, settings), new Item.Settings().maxCount(16).useBlockPrefixedTranslationKey());
+        CHARRED_SIGN = DesolationRegistries.register("charred_sign", properties -> new SignItem(DesolationBlocks.CHARRED_SIGN, DesolationBlocks.CHARRED_WALL_SIGN, properties), new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
+        CHARRED_HANGING_SIGN = DesolationRegistries.register("charred_hanging_sign", properties -> new HangingSignItem(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.CHARRED_WALL_HANGING_SIGN, properties), new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
 
 
-        CHARCOAL_BIT = DesolationRegistries.register("charcoal_bit", Item::new, new Item.Settings());
-        ASH_PILE = DesolationRegistries.register("ash_pile", AshItem::new, new Item.Settings());
-        //GLASS_SHARD = DesolationRegistries.register("glass_shard", Item::new, new Item.Settings());
-        PRIMED_ASH = DesolationRegistries.register("primed_ash", Item::new, new Item.Settings());
-        ACTIVATED_CHARCOAL = DesolationRegistries.register("activated_charcoal", Item::new, new Item.Settings());
-        AIR_FILTER = DesolationRegistries.register("air_filter", Item::new, new Item.Settings());
-        MASK = DesolationRegistries.register("mask", TrinketItem::new, new Item.Settings().maxCount(1));
-        GOGGLES = DesolationRegistries.register("goggles", TrinketItem::new, new Item.Settings().maxCount(1));
-        //MASK_GOGGLES = DesolationRegistries.register("mask_and_goggles", Item::new, new Item.Settings().equipmentSlot(itemStack -> EquipmentSlot.HEAD).maxCount(1));
-        CINDERFRUIT = DesolationRegistries.register("cinderfruit", Item::new, new Item.Settings().food(
-                new FoodComponent.Builder()
+        CHARCOAL_BIT = DesolationRegistries.register("charcoal_bit", Item::new, new Item.Properties());
+        ASH_PILE = DesolationRegistries.register("ash_pile", AshItem::new, new Item.Properties());
+        //GLASS_SHARD = DesolationRegistries.register("glass_shard", Item::new, new Item.Properties());
+        PRIMED_ASH = DesolationRegistries.register("primed_ash", Item::new, new Item.Properties());
+        ACTIVATED_CHARCOAL = DesolationRegistries.register("activated_charcoal", Item::new, new Item.Properties());
+        AIR_FILTER = DesolationRegistries.register("air_filter", Item::new, new Item.Properties());
+        CINDERFRUIT = DesolationRegistries.register("cinderfruit", Item::new, new Item.Properties().food(
+                new FoodProperties.Builder()
                         .nutrition(5)
                         .saturationModifier(6.5F)
                         .alwaysEdible()
                         .build(),
-                ConsumableComponents.food()
-                        .consumeEffect(new ApplyEffectsConsumeEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 200), 1.0F))
+                Consumables.defaultFood()
+                        .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200), 1.0F))
                         .build()
         ));
-        CINDERFRUIT_SEEDS = DesolationRegistries.register("cinderfruit_seeds", settings -> new BlockItem(DesolationBlocks.CINDERFRUIT_PLANT, settings.useItemPrefixedTranslationKey()), new Item.Settings());
-        INFUSED_POWDER = DesolationRegistries.register("infused_powder", Item::new, new Item.Settings());
-        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Settings().rarity(Rarity.RARE));
+        CINDERFRUIT_SEEDS = DesolationRegistries.register("cinderfruit_seeds", properties -> new BlockItem(DesolationBlocks.CINDERFRUIT_PLANT, properties.useItemDescriptionPrefix()), new Item.Properties());
+        INFUSED_POWDER = DesolationRegistries.register("infused_powder", Item::new, new Item.Properties());
+        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Properties().rarity(Rarity.RARE));
 
-        MUSIC_DISC_ASHES = DesolationRegistries.register("music_disc_ashes", Item::new, new Item.Settings().maxCount(1).rarity(Rarity.RARE).jukeboxPlayable(DesolationJukeboxSongs.ASHES));
-        SPAWN_EGG_ASH_SCUTTLER = DesolationRegistries.register("ash_scuttler_spawn_egg", settings ->
-                new SpawnEggItem(DesolationEntities.ASH_SCUTTLER, settings), new Item.Settings());
-        SPAWN_EGG_BLACKENED = DesolationRegistries.register("blackened_spawn_egg", settings ->
-                new SpawnEggItem(DesolationEntities.BLACKENED, settings), new Item.Settings());
+        MUSIC_DISC_ASHES = DesolationRegistries.register("music_disc_ashes", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE).jukeboxPlayable(DesolationJukeboxSongs.ASHES));
+        SPAWN_EGG_ASH_SCUTTLER = DesolationRegistries.register("ash_scuttler_spawn_egg", SpawnEggItem::new,
+                new Item.Properties().component(DataComponents.ENTITY_DATA, TypedEntityData.of(DesolationEntities.ASH_SCUTTLER, new CompoundTag())));
+        SPAWN_EGG_BLACKENED = DesolationRegistries.register("blackened_spawn_egg", SpawnEggItem::new,
+                new Item.Properties().component(DataComponents.ENTITY_DATA, TypedEntityData.of(DesolationEntities.BLACKENED, new CompoundTag())));
 
 
         addCompostables();
@@ -139,7 +132,7 @@ public final class DesolationItems {
     }
 
     private static void addCompostables() {
-        CompostingChanceRegistry compostingRegistry = CompostingChanceRegistry.INSTANCE;
+        CompostableRegistry compostingRegistry = CompostableRegistry.INSTANCE;
         float LEAVES_CHANCE = compostingRegistry.get(Items.OAK_LEAVES);
         float SAPLING_CHANCE = compostingRegistry.get(Items.OAK_SAPLING);
 
@@ -148,7 +141,7 @@ public final class DesolationItems {
     }
 
     private static void addFuels() {
-        FuelRegistryEvents.BUILD.register((builder, context) -> {
+        FuelValueEvents.BUILD.register((builder, context) -> {
             builder.add(DesolationItems.CHARCOAL_BIT, 400);
         });
     }

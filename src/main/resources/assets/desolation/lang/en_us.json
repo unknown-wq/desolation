@@ -55,9 +55,6 @@
   "item.desolation.music_disc_ashes": "Music Disc",
   "item.desolation.primed_ash": "Primed Ash",
 
-  "item.desolation.charred_boat": "Charred Boat",
-  "item.desolation.charred_chest_boat": "Charred Boat with Chest",
-
   "item.minecraft.potion.effect.cinder_soul": "Potion of Cinder Soul",
   "item.minecraft.splash_potion.effect.cinder_soul": "Splash Potion of Cinder Soul",
   "item.minecraft.lingering_potion.effect.cinder_soul": "Lingering Potion of Cinder Soul",
@@ -75,9 +72,6 @@
   "potion.cinder_soul.tooltip_b": "Grants Fire Resistance",
 
   "tag.item.desolation.charred_logs": "Desolation Charred Logs",
-
-  "tag.item.trinkets.head.face": "Trinkets Head Face",
-  "tag.item.trinkets.head.face_lower": "Trinkets Head Face Lower",
 
   "text.autoconfig.desolation.title": "Desolation Config",
   "text.autoconfig.desolation.category.default": "Main",

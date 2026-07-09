@@ -1,121 +1,126 @@
 package raltsmc.desolation.entity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.object.PlayState;
+import com.geckolib.animation.state.AnimationTest;
+import com.geckolib.util.GeckoLibUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import raltsmc.desolation.entity.ai.goal.DigAshGoal;
 import raltsmc.desolation.registry.DesolationItems;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.animatable.processing.AnimationController;
-import software.bernie.geckolib.animatable.processing.AnimationTest;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class AshScuttlerEntity extends AnimalEntity implements GeoEntity {
-    private static final TrackedData<Boolean> SEARCHING = DataTracker.registerData(AshScuttlerEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final Ingredient ATTRACTING_INGREDIENT = Ingredient.ofItems(DesolationItems.CINDERFRUIT);
+import java.util.function.Predicate;
+
+public class AshScuttlerEntity extends Animal implements GeoEntity {
+    private static final EntityDataAccessor<Boolean> SEARCHING = SynchedEntityData.defineId(AshScuttlerEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final Predicate<ItemStack> ATTRACTING_INGREDIENT = stack -> stack.is(DesolationItems.CINDERFRUIT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private static final RawAnimation HEAD_ANIM = RawAnimation.begin().thenLoop("animation.desolation.ash_scuttler_head");
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenPlay("animation.desolation.ash_scuttler_walk");
 
-    public AshScuttlerEntity(EntityType<? extends AnimalEntity> entityType, World world) {
+    public AshScuttlerEntity(EntityType<? extends Animal> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(1, new DigAshGoal(this, 0.3D,40,2));
-        this.goalSelector.add(2, new EscapeDangerGoal(this, 0.4F));
-        this.goalSelector.add(3, new TemptGoal(this, 0.3D, ATTRACTING_INGREDIENT, false));
-        this.goalSelector.add(4, new WanderAroundGoal(this, 0.2F));
-        this.goalSelector.add(5, new LookAtEntityGoal(this, PlayerEntity.class, 8F));
-        this.goalSelector.add(6, new LookAroundGoal(this));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new DigAshGoal(this, 0.3D,40,2));
+        this.goalSelector.addGoal(2, new PanicGoal(this, 0.4F));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 0.3D, ATTRACTING_INGREDIENT, false));
+        this.goalSelector.addGoal(4, new RandomStrollGoal(this, 0.2F));
+        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8F));
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(SEARCHING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SEARCHING, false);
     }
 
     @Override
-    public boolean isBreedingItem(ItemStack stack) {
+    public boolean isFood(ItemStack stack) {
         return false;
     }
 
     @Nullable
     @Override
-    public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
+    public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob entity) {
         return null;
     }
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(SoundEvents.ENTITY_ENDERMITE_STEP, 0.5F, 1.0F);
+        this.playSound(SoundEvents.ENDERMITE_STEP, 0.5F, 1.0F);
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_BAT_HURT;
+        return SoundEvents.BAT_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_BAT_DEATH;
+        return SoundEvents.BAT_DEATH;
     }
 
     public boolean isSearching() {
-        return this.dataTracker.get(SEARCHING);
+        return this.entityData.get(SEARCHING);
     }
 
     public void setSearching(boolean val) {
-        this.dataTracker.set(SEARCHING, val);
+        this.entityData.set(SEARCHING, val);
     }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        World world = this.getWorld();
-        ItemStack itemStack = player.getStackInHand(hand);
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        Level world = this.level();
+        ItemStack itemStack = player.getItemInHand(hand);
         Item item = itemStack.getItem();
         if (item == DesolationItems.CINDERFRUIT && !this.isSearching()) {
-            if (!world.isClient) {
-                if (!player.getAbilities().creativeMode) {
-                    itemStack.decrement(1);
+            if (!world.isClientSide()) {
+                if (!player.getAbilities().instabuild) {
+                    itemStack.shrink(1);
                 }
-                this.dataTracker.set(SEARCHING, true);
-                return ActionResult.SUCCESS;
+                this.entityData.set(SEARCHING, true);
+                return InteractionResult.SUCCESS;
             } else {
                 double pVel = random.nextGaussian() * 0.02D;
-                world.addParticleClient(ParticleTypes.HEART, this.getX(), this.getY(), this.getZ(), pVel, pVel, pVel);
-                player.playSound(SoundEvents.ITEM_NETHER_WART_PLANT, 1.0F, 1.0F);
-                return ActionResult.CONSUME;
+                world.addParticle(ParticleTypes.HEART, this.getX(), this.getY(), this.getZ(), pVel, pVel, pVel);
+                player.playSound(SoundEvents.NETHER_WART_PLANTED, 1.0F, 1.0F);
+                return InteractionResult.CONSUME;
             }
         }
-        return super.interactMob(player, hand);
+        return super.mobInteract(player, hand);
     }
 
     private <E extends GeoAnimatable> PlayState walkPredicate(AnimationTest<E> event) {

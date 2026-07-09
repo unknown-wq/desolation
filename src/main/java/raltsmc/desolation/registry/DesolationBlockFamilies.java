@@ -1,10 +1,9 @@
 package raltsmc.desolation.registry;
 
-import net.minecraft.data.family.BlockFamilies;
-import net.minecraft.data.family.BlockFamily;
+import net.minecraft.data.BlockFamily;
 
 public class DesolationBlockFamilies {
-    public static final BlockFamily CHARRED = BlockFamilies.register(DesolationBlocks.CHARRED_PLANKS)
+    public static final BlockFamily CHARRED = new BlockFamily.Builder(DesolationBlocks.CHARRED_PLANKS)
             .button(DesolationBlocks.CHARRED_BUTTON)
             .fence(DesolationBlocks.CHARRED_FENCE)
             .fenceGate(DesolationBlocks.CHARRED_FENCE_GATE)
@@ -14,7 +13,7 @@ public class DesolationBlockFamilies {
             .stairs(DesolationBlocks.CHARRED_STAIRS)
             .door(DesolationBlocks.CHARRED_DOOR)
             .trapdoor(DesolationBlocks.CHARRED_TRAPDOOR)
-            .group("wooden")
-            .unlockCriterionName("has_planks")
-            .build();
+            .recipeGroupPrefix("wooden")
+            .recipeUnlockedBy("has_planks")
+            .getFamily();
 }

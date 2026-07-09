@@ -1,50 +1,55 @@
 package raltsmc.desolation.entity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.World;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.object.PlayState;
+import com.geckolib.animation.state.AnimationTest;
+import com.geckolib.util.GeckoLibUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import raltsmc.desolation.entity.ai.goal.AshAttackGoal;
 import raltsmc.desolation.registry.DesolationItems;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.animatable.processing.AnimationController;
-import software.bernie.geckolib.animatable.processing.AnimationTest;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Optional;
 
-public class BlackenedEntity extends HostileEntity implements GeoEntity {
-    private static final TrackedData<Boolean> MELEE_ATTACKING = DataTracker.registerData(BlackenedEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Boolean> ASH_ATTACKING = DataTracker.registerData(BlackenedEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+public class BlackenedEntity extends Monster implements GeoEntity {
+    private static final EntityDataAccessor<Boolean> MELEE_ATTACKING = SynchedEntityData.defineId(BlackenedEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> ASH_ATTACKING = SynchedEntityData.defineId(BlackenedEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("animation.desolation.blackened_idle");
@@ -53,91 +58,91 @@ public class BlackenedEntity extends HostileEntity implements GeoEntity {
     private static final RawAnimation MELEE_ANIM = RawAnimation.begin().thenLoop("animation.desolation.blackened_melee");
     private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenLoop("animation.desolation.blackened_throw");
 
-    public BlackenedEntity(EntityType<? extends HostileEntity> entityType, World world) {
+    public BlackenedEntity(EntityType<? extends Monster> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, WolfEntity.class, 6.0F, 1.0D, 1.2D));
-        this.goalSelector.add(4, new AshAttackGoal(this, 1D, false));
-        this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0D));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8F));
-        this.goalSelector.add(6, new LookAroundGoal(this));
-        this.targetSelector.add(1, new RevengeGoal(this));
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Wolf.class, 6.0F, 1.0D, 1.2D));
+        this.goalSelector.addGoal(4, new AshAttackGoal(this, 1D, false));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8F));
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
-    public static DefaultAttributeContainer.Builder createBlackenedAttributes() {
-        return HostileEntity.createHostileAttributes()
-                .add(EntityAttributes.MOVEMENT_SPEED, 0.19D)
-                .add(EntityAttributes.ATTACK_DAMAGE, 6);
+    public static AttributeSupplier.Builder createBlackenedAttributes() {
+        return Monster.createMonsterAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.19D)
+                .add(Attributes.ATTACK_DAMAGE, 6);
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(MELEE_ATTACKING, false);
-        builder.add(ASH_ATTACKING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(MELEE_ATTACKING, false);
+        builder.define(ASH_ATTACKING, false);
     }
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(SoundEvents.ENTITY_SKELETON_STEP, 0.5F, 1.0F);
+        this.playSound(SoundEvents.SKELETON_STEP, 0.5F, 1.0F);
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_SKELETON_HURT;
+        return SoundEvents.SKELETON_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_SKELETON_DEATH;
+        return SoundEvents.SKELETON_DEATH;
     }
 
     @Override
-    protected void initEquipment(Random random, LocalDifficulty difficulty) {
-        super.initEquipment(random, difficulty);
-        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(DesolationItems.ASH_PILE));
+    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
+        super.populateDefaultEquipmentSlots(random, difficulty);
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(DesolationItems.ASH_PILE));
     }
 
     public void tryAshAttack(LivingEntity target) {
-            World world = this.getWorld();
-            Vec3d eyePos = this.getPos().add(new Vec3d(0, this.getEyeY() - this.getY(), 0).multiply(0.75));
-            Vec3d targetVector = eyePos.add(target.getPos().subtract(this.getPos()).normalize().multiply(2.5));
+            Level world = this.level();
+            Vec3 eyePos = this.position().add(new Vec3(0, this.getEyeY() - this.getY(), 0).scale(0.75));
+            Vec3 targetVector = eyePos.add(target.position().subtract(this.position()).normalize().scale(2.5));
 
-            if (!world.isClient) {
-                AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(world, targetVector.x,
+            if (!world.isClientSide()) {
+                AreaEffectCloud areaEffectCloudEntity = new AreaEffectCloud(world, targetVector.x,
                         targetVector.y, targetVector.z);
                 areaEffectCloudEntity.setDuration(30);
-                areaEffectCloudEntity.setParticleType(ParticleTypes.WHITE_ASH);
-                areaEffectCloudEntity.setPotionContents(new PotionContentsComponent(Optional.empty(), Optional.of(0xcccccc), List.of(), Optional.empty()));
-                areaEffectCloudEntity.addEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 120, 2));
+                areaEffectCloudEntity.setCustomParticle(ParticleTypes.WHITE_ASH);
+                areaEffectCloudEntity.setPotionContents(new PotionContents(Optional.empty(), Optional.of(0xcccccc), List.of(), Optional.empty()));
+                areaEffectCloudEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 2));
                 areaEffectCloudEntity.setRadius(0.6F);
                 areaEffectCloudEntity.setRadiusOnUse(0.6F);
-                areaEffectCloudEntity.setRadiusGrowth(0.03F);
+                areaEffectCloudEntity.setRadiusPerTick(0.03F);
                 areaEffectCloudEntity.setOwner(this);
                 areaEffectCloudEntity.setWaitTime(0);
-                areaEffectCloudEntity.playSound(SoundEvents.BLOCK_SNOW_BREAK, 1, 1);
-                world.spawnEntity(areaEffectCloudEntity);
+                areaEffectCloudEntity.playSound(SoundEvents.SNOW_BREAK, 1, 1);
+                world.addFreshEntity(areaEffectCloudEntity);
             }
     }
 
     public boolean isMeleeAttacking() {
-        return this.dataTracker.get(MELEE_ATTACKING);
+        return this.entityData.get(MELEE_ATTACKING);
     }
 
     public boolean isAshAttacking() {
-        return this.dataTracker.get(ASH_ATTACKING);
+        return this.entityData.get(ASH_ATTACKING);
     }
 
     public void setMeleeAttacking(boolean val) {
-        this.dataTracker.set(MELEE_ATTACKING, val);
+        this.entityData.set(MELEE_ATTACKING, val);
     }
 
     public void setAshAttacking(boolean val) {
-        this.dataTracker.set(ASH_ATTACKING, val);
+        this.entityData.set(ASH_ATTACKING, val);
     }
 
     private <E extends GeoAnimatable> PlayState idlePredicate(AnimationTest<E> event) {

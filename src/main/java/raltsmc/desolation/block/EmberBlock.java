@@ -1,35 +1,33 @@
 package raltsmc.desolation.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShovelItem;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.event.GameEvent;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
 import raltsmc.desolation.registry.DesolationParticles;
 import raltsmc.desolation.registry.DesolationSounds;
 
@@ -39,56 +37,52 @@ import raltsmc.desolation.registry.DesolationSounds;
 public class EmberBlock extends Block {
     private final BlockState cooledState;
 
-    public EmberBlock(Block cooled, Settings settings) {
-        super(settings);
-        this.cooledState = cooled.getDefaultState();
+    public EmberBlock(Block cooled, Properties properties) {
+        super(properties);
+        this.cooledState = cooled.defaultBlockState();
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        Hand hand = player.getActiveHand();
-        ItemStack stack = player.getStackInHand(hand);
-
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (stack.getItem() instanceof ShovelItem) {
-            if (world.isClient()) {
+            if (world.isClientSide()) {
                 for (int i = 0; i < 20; ++i) {
-                    CampfireBlock.spawnSmokeParticle(world, pos, false, true);
+                    CampfireBlock.makeParticles(world, pos, false, true);
                 }
             } else {
-                world.syncWorldEvent(null, 1009, pos, 0);
-                stack.damage(1, player, LivingEntity.getSlotForHand(hand));
+                world.levelEvent(null, 1009, pos, 0);
+                stack.hurtAndBreak(1, player, hand);
             }
-            world.playSound(player, pos, SoundEvents.BLOCK_BASALT_HIT, SoundCategory.BLOCKS, 1f, 1f);
-            world.playSound(player, pos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.3f, 1f);
-            world.setBlockState(pos, this.cooledState);
-            world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+            world.playSound(player, pos, SoundEvents.BASALT_HIT, SoundSource.BLOCKS, 1f, 1f);
+            world.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.3f, 1f);
+            world.setBlockAndUpdate(pos, this.cooledState);
+            world.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return super.onUse(state, world, pos, player, hit);
+        return super.useItemOn(stack, state, world, pos, player, hand, hit);
     }
 
     @Override
-    public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
-        if (world instanceof ServerWorld serverWorld && !entity.isFireImmune()) {
-            DamageSource hotFloor = world.getDamageSources().hotFloor();
+    public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {
+        if (world instanceof ServerLevel serverLevel && !entity.fireImmune()) {
+            DamageSource hotFloor = world.damageSources().hotFloor();
 
-            if (entity instanceof LivingEntity livingEntity && !livingEntity.isInvulnerableTo(serverWorld, hotFloor)) {
-                livingEntity.damage(serverWorld, hotFloor, 1.0F);
+            if (entity instanceof LivingEntity livingEntity && !livingEntity.isInvulnerableTo(serverLevel, hotFloor)) {
+                livingEntity.hurtServer(serverLevel, hotFloor, 1.0F);
 
                 if (Math.random() > 0.9D) {
-                    livingEntity.setFireTicks(120);
+                    livingEntity.setRemainingFireTicks(120);
                 }
             }
         }
 
-        super.onSteppedOn(world, pos, state, entity);
+        super.stepOn(world, pos, state, entity);
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
-    public void randomDisplayTick(BlockState blockstate, World world, BlockPos pos, Random random) {
+    public void animateTick(BlockState blockstate, Level world, BlockPos pos, RandomSource random) {
         double d = (double)pos.getX() + 0.5D;
         double e = (double)pos.getY();
         double f = (double)pos.getZ() + 0.5D;
@@ -104,10 +98,10 @@ public class EmberBlock extends Block {
         double rdY = (random.nextDouble() - 0.5D) / 5.0D;
 
         if (random.nextBoolean()) {
-            world.addParticleClient(ParticleTypes.LARGE_SMOKE, d + g, e + h, f + i, 0.0D, 0.1D + rdY, 0.0D);
+            world.addParticle(ParticleTypes.LARGE_SMOKE, d + g, e + h, f + i, 0.0D, 0.1D + rdY, 0.0D);
         }
         if (random.nextFloat() < 0.3f) {
-            world.addParticleClient((ParticleEffect) DesolationParticles.SPARK, d + j, e + k, f + l, 0.0D, random.nextDouble() * 0.3D + 0.1D, 0.0D);
+            world.addParticle((ParticleOptions) DesolationParticles.SPARK, d + j, e + k, f + l, 0.0D, random.nextDouble() * 0.3D + 0.1D, 0.0D);
             if (random.nextFloat() < 0.05f) {
                 int index = random.nextInt(4);
                 SoundEvent popSound = switch (index) {
@@ -117,20 +111,20 @@ public class EmberBlock extends Block {
                     case 3 -> DesolationSounds.EMBER_BLOCK_POP_4;
                     default -> throw new IllegalStateException("Unexpected value: " + index);
                 };
-                world.playSoundClient(d + j, e + k, f + l, popSound, SoundCategory.BLOCKS, random.nextFloat() * 0.2F + 0.8F, 1.0F, true);
+                world.playLocalSound(d + j, e + k, f + l, popSound, SoundSource.BLOCKS, random.nextFloat() * 0.2F + 0.8F, 1.0F, true);
             }
         }
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockView blockView = ctx.getWorld();
-        BlockPos blockPos = ctx.getBlockPos();
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        BlockGetter blockView = ctx.getLevel();
+        BlockPos blockPos = ctx.getClickedPos();
         BlockState blockState = blockView.getBlockState(blockPos);
-        return shouldCool(blockView, blockPos, blockState) ? this.cooledState : super.getPlacementState(ctx);
+        return shouldCool(blockView, blockPos, blockState) ? this.cooledState : super.getStateForPlacement(ctx);
     }
 
-    private static boolean shouldCool(BlockView world, BlockPos pos, BlockState state) {
+    private static boolean shouldCool(BlockGetter world, BlockPos pos, BlockState state) {
         return coolsIn(state) || coolsOnAnySide(world, pos) != CoolType.NONE;
     }
 
@@ -140,21 +134,21 @@ public class EmberBlock extends Block {
         SMOTHERED
     }
 
-    private static CoolType coolsOnAnySide(BlockView world, BlockPos pos) {
+    private static CoolType coolsOnAnySide(BlockGetter world, BlockPos pos) {
         boolean isTouchingWater = false;
         boolean isSmothered = true;
-        BlockPos.Mutable mutable = pos.mutableCopy();
+        BlockPos.MutableBlockPos mutable = pos.mutable();
         Direction[] dirs = Direction.values();
 
         for (Direction direction : dirs) {
             BlockState blockState = world.getBlockState(mutable);
             if (direction != Direction.DOWN || coolsIn(blockState)) {
-                mutable.set(pos, direction);
+                mutable.setWithOffset(pos, direction);
                 blockState = world.getBlockState(mutable);
-                if (coolsIn(blockState) && !blockState.isSideSolidFullSquare(world, pos, direction.getOpposite())) {
+                if (coolsIn(blockState) && !blockState.isFaceSturdy(world, pos, direction.getOpposite())) {
                     isTouchingWater = true;
                     break;
-                } else if (!blockState.isOpaqueFullCube()) {
+                } else if (!blockState.isSolidRender()) {
                     isSmothered = false;
                 }
             }
@@ -170,21 +164,21 @@ public class EmberBlock extends Block {
     }
 
     private static boolean coolsIn(BlockState state) {
-        return state.getFluidState().isIn(FluidTags.WATER);
+        return state.getFluidState().is(FluidTags.WATER);
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+    public BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         CoolType coolType = coolsOnAnySide(world, pos);
 
         if (coolType != CoolType.NONE) {
-            if (world instanceof ServerWorld serverWorld && coolType == CoolType.TOUCHED_WATER) {
-                serverWorld.playSound(null, pos, SoundEvents.BLOCK_LAVA_EXTINGUISH, SoundCategory.BLOCKS, 1f, 1f);
+            if (world instanceof ServerLevel serverLevel && coolType == CoolType.TOUCHED_WATER) {
+                serverLevel.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
             }
 
             return this.cooledState;
         }
 
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 }

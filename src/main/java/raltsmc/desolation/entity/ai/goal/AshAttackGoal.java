@@ -1,12 +1,12 @@
 package raltsmc.desolation.entity.ai.goal;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.pathfinder.Path;
 import raltsmc.desolation.entity.BlackenedEntity;
 
 import java.util.EnumSet;
@@ -35,12 +35,12 @@ public class AshAttackGoal extends Goal {
         this.mob = mob;
         this.speed = speed;
         this.pauseWhenMobIdle = pauseWhenMobIdle;
-        this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
-    public boolean canStart() {
-        //if (Objects.equals(this.mob.getEquippedStack(EquipmentSlot.MAINHAND),new ItemStack(DesolationItems.ASH_PILE))) {
-            long l = this.mob.getWorld().getTime();
+    public boolean canUse() {
+        //if (Objects.equals(this.mob.getItemBySlot(EquipmentSlot.MAINHAND),new ItemStack(DesolationItems.ASH_PILE))) {
+            long l = this.mob.tickCount;
             if (l - this.lastUpdateTime < attackIntervalTicks) {
                 return false;
             } else {
@@ -51,11 +51,11 @@ public class AshAttackGoal extends Goal {
                 } else if (!livingEntity.isAlive()) {
                     return false;
                 } else {
-                    this.path = this.mob.getNavigation().findPathTo(livingEntity, 0);
+                    this.path = this.mob.getNavigation().createPath(livingEntity, 0);
                     if (this.path != null) {
                         return true;
                     } else {
-                        return this.getSquaredMaxAttackDistance(livingEntity) >= this.mob.squaredDistanceTo(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
+                        return this.getSquaredMaxAttackDistance(livingEntity) >= this.mob.distanceToSqr(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
                     }
                 }
             }
@@ -64,19 +64,19 @@ public class AshAttackGoal extends Goal {
         //}
     }
 
-    public boolean shouldContinue() {
-        //if (Objects.equals(this.mob.getEquippedStack(EquipmentSlot.MAINHAND),new ItemStack(DesolationItems.ASH_PILE))) {
+    public boolean canContinueToUse() {
+        //if (Objects.equals(this.mob.getItemBySlot(EquipmentSlot.MAINHAND),new ItemStack(DesolationItems.ASH_PILE))) {
             LivingEntity livingEntity = this.mob.getTarget();
             if (livingEntity == null) {
                 return false;
             } else if (!livingEntity.isAlive()) {
                 return false;
             } else if (!this.pauseWhenMobIdle) {
-                return !this.mob.getNavigation().isIdle();
-            } else if (!this.mob.isInPositionTargetRange(livingEntity.getBlockPos())) {
+                return !this.mob.getNavigation().isDone();
+            } else if (!this.mob.isWithinHome(livingEntity.blockPosition())) {
                 return false;
             } else {
-                return !(livingEntity instanceof PlayerEntity) || !livingEntity.isSpectator() && !((PlayerEntity) livingEntity).isCreative();
+                return !(livingEntity instanceof Player) || !livingEntity.isSpectator() && !((Player) livingEntity).isCreative();
             }
         //} else {
         //    return false;
@@ -84,8 +84,8 @@ public class AshAttackGoal extends Goal {
     }
 
     public void start() {
-        this.mob.getNavigation().startMovingAlong(this.path, this.speed);
-        this.mob.setAttacking(true);
+        this.mob.getNavigation().moveTo(this.path, this.speed);
+        this.mob.setAggressive(true);
         this.updateCountdownTicks = 0;
         this.attackCd = 0;
         this.lastAttack = AttackType.NONE;
@@ -93,11 +93,11 @@ public class AshAttackGoal extends Goal {
 
     public void stop() {
         LivingEntity livingEntity = this.mob.getTarget();
-        if (!EntityPredicates.EXCEPT_CREATIVE_OR_SPECTATOR.test(livingEntity)) {
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity)) {
             this.mob.setTarget(null);
         }
 
-        this.mob.setAttacking(false);
+        this.mob.setAggressive(false);
         this.mob.setMeleeAttacking(false);
         this.mob.setAshAttacking(false);
         this.mob.getNavigation().stop();
@@ -109,10 +109,10 @@ public class AshAttackGoal extends Goal {
             return;
         }
 
-        this.mob.getLookControl().lookAt(livingEntity, 30.0F, 30.0F);
-        double d = this.mob.squaredDistanceTo(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
+        this.mob.getLookControl().setLookAt(livingEntity, 30.0F, 30.0F);
+        double d = this.mob.distanceToSqr(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
         this.updateCountdownTicks = Math.max(this.updateCountdownTicks - 1, 0);
-        if ((this.pauseWhenMobIdle || this.mob.getVisibilityCache().canSee(livingEntity)) && this.updateCountdownTicks <= 0 && (this.targetX == 0.0D && this.targetY == 0.0D && this.targetZ == 0.0D || livingEntity.squaredDistanceTo(this.targetX, this.targetY, this.targetZ) >= 1.0D || this.mob.getRandom().nextFloat() < 0.05F)) {
+        if ((this.pauseWhenMobIdle || this.mob.getSensing().hasLineOfSight(livingEntity)) && this.updateCountdownTicks <= 0 && (this.targetX == 0.0D && this.targetY == 0.0D && this.targetZ == 0.0D || livingEntity.distanceToSqr(this.targetX, this.targetY, this.targetZ) >= 1.0D || this.mob.getRandom().nextFloat() < 0.05F)) {
             this.targetX = livingEntity.getX();
             this.targetY = livingEntity.getY();
             this.targetZ = livingEntity.getZ();
@@ -123,7 +123,7 @@ public class AshAttackGoal extends Goal {
                 this.updateCountdownTicks += 5;
             }
 
-            if (!this.mob.getNavigation().startMovingTo(livingEntity, this.speed)) {
+            if (!this.mob.getNavigation().moveTo(livingEntity, this.speed)) {
                 this.updateCountdownTicks += 15;
             }
         }
@@ -140,19 +140,19 @@ public class AshAttackGoal extends Goal {
                 (this.lastAttack == AttackType.MELEE && this.getAttackCd() <= 0) ||
                 (this.lastAttack == AttackType.ASH && this.getAttackCd() <= 30)) {
             this.resetAttackCd();
-            this.mob.swingHand(Hand.MAIN_HAND);
+            this.mob.swing(InteractionHand.MAIN_HAND);
             this.mob.setMeleeAttacking(true);
             this.mob.setAshAttacking(false);
             this.lastAttack = AttackType.MELEE;
-            if (target.getWorld() instanceof ServerWorld serverWorld) {
-                this.mob.tryAttack(serverWorld, target);
+            if (target.level() instanceof ServerLevel serverLevel) {
+                this.mob.doHurtTarget(serverLevel, target);
             }
         } else if (squaredDistance <= d &&
                 (this.lastAttack == AttackType.NONE && this.getAttackCd() <= 0) ||
                 (this.lastAttack == AttackType.MELEE && this.getAttackCd() <= 30) ||
                 (this.lastAttack == AttackType.ASH && this.getAttackCd() <= 0)) {
             this.resetAttackCd();
-            this.mob.swingHand(Hand.MAIN_HAND);
+            this.mob.swing(InteractionHand.MAIN_HAND);
             this.mob.setAshAttacking(true);
             this.mob.setMeleeAttacking(false);
             this.lastAttack = AttackType.ASH;
@@ -173,10 +173,10 @@ public class AshAttackGoal extends Goal {
     }
 
     protected double getSquaredMaxAttackDistance(LivingEntity entity) {
-        return this.mob.getWidth() * 4.0F * this.mob.getWidth() * 4.0F + entity.getWidth();
+        return this.mob.getBbWidth() * 4.0F * this.mob.getBbWidth() * 4.0F + entity.getBbWidth();
     }
 
     protected double getSquaredCloseAttackDistance(LivingEntity entity) {
-        return this.mob.getWidth() * 2.0F * this.mob.getWidth() * 2.0F + entity.getWidth();
+        return this.mob.getBbWidth() * 2.0F * this.mob.getBbWidth() * 2.0F + entity.getBbWidth();
     }
 }

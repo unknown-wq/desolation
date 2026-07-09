@@ -1,48 +1,48 @@
 package raltsmc.desolation.item;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Fertilizable;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class ConfigurableFertilizerItem extends Item {
     private double growChance;
     private int growTries;
 
-    public ConfigurableFertilizerItem(Settings settings) {
-        super(settings);
+    public ConfigurableFertilizerItem(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        BlockPos blockPos = context.getBlockPos();
-        if (useOnFertilizable(context.getStack(), world, blockPos, growChance, growTries)) {
-            if (!world.isClient) {
-                world.syncWorldEvent(2005,blockPos,0);
+    public InteractionResult useOn(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos blockPos = context.getClickedPos();
+        if (useOnFertilizable(context.getItemInHand(), world, blockPos, growChance, growTries)) {
+            if (!world.isClientSide()) {
+                world.levelEvent(2005, blockPos, 0);
             }
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         } else {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
     }
 
-    public static boolean useOnFertilizable(ItemStack stack, World world, BlockPos pos, double growChance, int growTries) {
+    public static boolean useOnFertilizable(ItemStack stack, Level world, BlockPos pos, double growChance, int growTries) {
         BlockState blockState = world.getBlockState(pos);
-        if (blockState.getBlock() instanceof Fertilizable fertilizable) {
-            if (fertilizable.isFertilizable(world, pos, blockState)) {
-                if (world instanceof ServerWorld) {
+        if (blockState.getBlock() instanceof BonemealableBlock fertilizable) {
+            if (fertilizable.isValidBonemealTarget(world, pos, blockState)) {
+                if (world instanceof ServerLevel) {
                     for (int i=0; i<growTries; i++) {
-                        if (fertilizable.canGrow(world, world.random, pos, blockState) && world.random.nextDouble() < growChance) {
-                            fertilizable.grow((ServerWorld)world, world.random, pos, blockState);
+                        if (fertilizable.isBonemealSuccess(world, world.getRandom(), pos, blockState) && world.getRandom().nextDouble() < growChance) {
+                            fertilizable.performBonemeal((ServerLevel)world, world.getRandom(), pos, blockState);
                         }
                     }
-                    stack.decrement(1);
+                    stack.shrink(1);
                 }
                 return true;
             }

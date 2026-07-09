@@ -1,25 +1,25 @@
 package raltsmc.desolation.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class AshLayerBlock extends SnowBlock {
-    public AshLayerBlock(Settings settings) {
-        super(settings);
+public class AshLayerBlock extends SnowLayerBlock {
+    public AshLayerBlock(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    public void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
     }
 
     @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (state.get(LAYERS) > 1) {
-            world.setBlockState(pos, this.getDefaultState().with(LAYERS, state.get(LAYERS) - 1), 1);
+    public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {
+        if (state.getValue(LAYERS) > 1) {
+            world.setBlock(pos, this.defaultBlockState().setValue(LAYERS, state.getValue(LAYERS) - 1), 1);
         }
     }
 }

@@ -1,34 +1,34 @@
 package raltsmc.desolation.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.tag.DesolationBlockTags;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DesolationBlockTagProvider extends FabricTagProvider.BlockTagProvider {
-	protected DesolationBlockTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+public class DesolationBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
+	protected DesolationBlockTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
 		super(output, registriesFuture);
 	}
 
 	@Override
-	public void configure(RegistryWrapper.WrapperLookup registries) {
-		valueLookupBuilder(BlockTags.AXE_MINEABLE)
+	public void addTags(HolderLookup.Provider registries) {
+		valueLookupBuilder(BlockTags.MINEABLE_WITH_AXE)
 			.add(DesolationBlocks.CHARRED_FENCE_GATE);
 
-		valueLookupBuilder(BlockTags.HOE_MINEABLE)
+		valueLookupBuilder(BlockTags.MINEABLE_WITH_HOE)
 			.add(DesolationBlocks.CHARRED_BRANCHES);
 
-		valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
+		valueLookupBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
 			.add(DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK)
 			.add(DesolationBlocks.COOLED_EMBER_BLOCK)
 			.add(DesolationBlocks.EMBER_BLOCK);
 
-		valueLookupBuilder(BlockTags.SHOVEL_MINEABLE)
+		valueLookupBuilder(BlockTags.MINEABLE_WITH_SHOVEL)
 			.add(DesolationBlocks.ASH_BLOCK)
 			.add(DesolationBlocks.ASH_LAYER_BLOCK)
 			.add(DesolationBlocks.CHARRED_SOIL);
@@ -108,10 +108,5 @@ public class DesolationBlockTagProvider extends FabricTagProvider.BlockTagProvid
 		valueLookupBuilder(ConventionalBlockTags.STRIPPED_WOODS)
 			.add(DesolationBlocks.STRIPPED_CHARRED_WOOD);
 
-	}
-
-	@Override
-	public String getName() {
-		return "Desolation Block Tags";
 	}
 }

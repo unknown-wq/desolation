@@ -1,18 +1,17 @@
 package raltsmc.desolation.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.data.recipe.RecipeExporter;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
 import raltsmc.desolation.Desolation;
 import raltsmc.desolation.registry.DesolationBlocks;
-import raltsmc.desolation.registry.DesolationBoats;
 import raltsmc.desolation.registry.DesolationItems;
 import raltsmc.desolation.tag.DesolationItemTags;
 
@@ -20,142 +19,133 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class DesolationRecipeProvider extends FabricRecipeProvider {
-	protected DesolationRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+	public DesolationRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
 		super(output, registriesFuture);
 	}
 
 	@Override
-	public RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup registryLookup, RecipeExporter exporter) {
-		return new RecipeGenerator(registryLookup, exporter) {
+	protected RecipeProvider createRecipeProvider(HolderLookup.Provider registryLookup, RecipeOutput exporter) {
+		return new RecipeProvider(registryLookup, exporter) {
 			@Override
-			public void generate() {
+			public void buildRecipes() {
 				// vanilla recipes
-				offer2x2CompactingRecipe(RecipeCategory.MISC, Items.CHARCOAL, DesolationItems.CHARCOAL_BIT);
+				twoByTwoPacker(RecipeCategory.MISC, Items.CHARCOAL, DesolationItems.CHARCOAL_BIT);
 
-				createShapeless(RecipeCategory.MISC, Items.GUNPOWDER, 1)
-						.input(Items.BONE_MEAL)
-						.input(Items.CHARCOAL)
-						.input(Items.CLAY_BALL)
-						.criterion("has_charcoal", InventoryChangedCriterion.Conditions.items(Items.CHARCOAL))
-						.offerTo(exporter);
+				shapeless(RecipeCategory.MISC, Items.GUNPOWDER, 1)
+						.requires(Items.BONE_MEAL)
+						.requires(Items.CHARCOAL)
+						.requires(Items.CLAY_BALL)
+						.unlockedBy("has_charcoal", has(Items.CHARCOAL))
+						.save(exporter);
 
 
 				// misc. recipes
-				offerReversibleCompactingRecipes(RecipeCategory.MISC, DesolationItems.ACTIVATED_CHARCOAL, RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK);
+				nineBlockStorageRecipes(RecipeCategory.MISC, DesolationItems.ACTIVATED_CHARCOAL, RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.ACTIVATED_CHARCOAL_BLOCK);
 
-				offerSmelting(List.of(Items.CHARCOAL), RecipeCategory.MISC, DesolationItems.ACTIVATED_CHARCOAL, 3.0f, 800, "charcoal");
+				oreSmelting(List.of(Items.CHARCOAL), RecipeCategory.MISC, CookingBookCategory.MISC, DesolationItems.ACTIVATED_CHARCOAL, 3.0f, 800, "charcoal");
 
-				createShaped(RecipeCategory.TOOLS, DesolationItems.AIR_FILTER, 1)
+				shaped(RecipeCategory.TOOLS, DesolationItems.AIR_FILTER, 1)
 						.pattern("CCC")
 						.pattern("CPC")
 						.pattern("CCC")
-						.input('C', DesolationItems.ACTIVATED_CHARCOAL)
-						.input('P', Items.PAPER)
-						.criterion("has_activated_charcoal", InventoryChangedCriterion.Conditions.items(DesolationItems.ACTIVATED_CHARCOAL))
-						.offerTo(exporter);
+						.define('C', DesolationItems.ACTIVATED_CHARCOAL)
+						.define('P', Items.PAPER)
+						.unlockedBy("has_activated_charcoal", has(DesolationItems.ACTIVATED_CHARCOAL))
+						.save(exporter);
 
-				offerReversibleCompactingRecipes(RecipeCategory.MISC, DesolationItems.ASH_PILE, RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.ASH_BLOCK);
+				nineBlockStorageRecipes(RecipeCategory.MISC, DesolationItems.ASH_PILE, RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.ASH_BLOCK);
 
-				offerShapelessRecipe(DesolationItems.CHARCOAL_BIT, Items.CHARCOAL, "charcoal", 4);
+				shapeless(RecipeCategory.MISC, DesolationItems.CHARCOAL_BIT, 4)
+						.requires(Items.CHARCOAL)
+						.group("charcoal")
+						.unlockedBy("has_charcoal", has(Items.CHARCOAL))
+						.save(exporter);
 
-				createShaped(RecipeCategory.TOOLS, DesolationItems.GOGGLES, 1)
-						.pattern("GSG")
-						.pattern("LSL")
-						.pattern("GSG")
-						.input('G', Items.GOLD_INGOT)
-						.input('L', Items.LEATHER)
-						.input('S', Items.GLASS_PANE)
-						.criterion("has_gold_ingot", InventoryChangedCriterion.Conditions.items(Items.GOLD_INGOT))
-						.offerTo(exporter);
-
-				createShaped(RecipeCategory.MISC, DesolationItems.INFUSED_POWDER, 1)
+				shaped(RecipeCategory.MISC, DesolationItems.INFUSED_POWDER, 1)
 						.pattern("CCC")
 						.pattern("CFC")
 						.pattern("CCC")
-						.input('C', DesolationItems.ACTIVATED_CHARCOAL)
-						.input('F', DesolationItems.CINDERFRUIT)
-						.criterion("has_cinderfruit", InventoryChangedCriterion.Conditions.items(DesolationItems.CINDERFRUIT))
-						.offerTo(exporter);
+						.define('C', DesolationItems.ACTIVATED_CHARCOAL)
+						.define('F', DesolationItems.CINDERFRUIT)
+						.unlockedBy("has_cinderfruit", has(DesolationItems.CINDERFRUIT))
+						.save(exporter);
 
-				createShaped(RecipeCategory.TOOLS, DesolationItems.MASK, 1)
-						.pattern("LLL")
-						.pattern("SFS")
-						.pattern("LLL")
-						.input('F', DesolationItems.AIR_FILTER)
-						.input('L', Items.LEATHER)
-						.input('S', Items.STRING)
-						.criterion("has_air_filter", InventoryChangedCriterion.Conditions.items(DesolationItems.AIR_FILTER))
-						.offerTo(exporter);
-
-				//createShapeless(RecipeCategory.TOOLS, DesolationItems.MASK_GOGGLES, 1)
-				//		.input(DesolationItems.GOGGLES)
-				//		.input(DesolationItems.MASK)
-				//		.criterion("has_mask_and_goggles", InventoryChangedCriterion.Conditions.items(
-				//				new ItemPredicate(null, Set.of(DesolationItems.GOGGLES, DesolationItems.MASK), NumberRange.IntRange.ANY, NumberRange.IntRange.ANY, EnchantmentPredicate.ARRAY_OF_ANY, EnchantmentPredicate.ARRAY_OF_ANY, null, NbtPredicate.ANY)))
-				//		.offerTo(exporter);
-
-				createShaped(RecipeCategory.MISC, DesolationItems.PRIMED_ASH, 1)
+				shaped(RecipeCategory.MISC, DesolationItems.PRIMED_ASH, 1)
 						.pattern("CCC")
 						.pattern("CAC")
 						.pattern("CCC")
-						.input('A', DesolationItems.ASH_PILE)
-						.input('C', DesolationItems.ACTIVATED_CHARCOAL)
-						.criterion("has_ash_pile", InventoryChangedCriterion.Conditions.items(DesolationItems.ASH_PILE))
-						.offerTo(exporter);
+						.define('A', DesolationItems.ASH_PILE)
+						.define('C', DesolationItems.ACTIVATED_CHARCOAL)
+						.unlockedBy("has_ash_pile", has(DesolationItems.ASH_PILE))
+						.save(exporter);
 
 
 				// wood recipes
-				offerBoatRecipe(DesolationBoats.CHARRED_BOAT, DesolationBlocks.CHARRED_PLANKS);
+				shapeless(RecipeCategory.REDSTONE, DesolationBlocks.CHARRED_BUTTON, 1)
+						.requires(DesolationBlocks.CHARRED_PLANKS)
+						.group("wooden_button")
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				offerChestBoatRecipe(DesolationBoats.CHARRED_CHEST_BOAT, DesolationBoats.CHARRED_BOAT);
+				doorBuilder(DesolationBlocks.CHARRED_DOOR, Ingredient.of(DesolationBlocks.CHARRED_PLANKS))
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				offerSingleOutputShapelessRecipe(DesolationBlocks.CHARRED_BUTTON, DesolationBlocks.CHARRED_PLANKS, "redstone");
+				shaped(RecipeCategory.DECORATIONS, DesolationBlocks.CHARRED_FENCE, 3)
+						.pattern("W#W")
+						.pattern("W#W")
+						.define('#', Items.STICK)
+						.define('W', DesolationBlocks.CHARRED_PLANKS)
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				createDoorRecipe(DesolationBlocks.CHARRED_DOOR, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
+				shaped(RecipeCategory.REDSTONE, DesolationBlocks.CHARRED_FENCE_GATE, 1)
+						.pattern("#W#")
+						.pattern("#W#")
+						.define('#', Items.STICK)
+						.define('W', DesolationBlocks.CHARRED_PLANKS)
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				createFenceRecipe(DesolationBlocks.CHARRED_FENCE, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
+				hangingSign(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.STRIPPED_CHARRED_LOG);
 
-				createFenceGateRecipe(DesolationBlocks.CHARRED_FENCE_GATE, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
+				planksFromLogs(DesolationBlocks.CHARRED_PLANKS, DesolationItemTags.CHARRED_LOGS, 4);
 
-				offerHangingSignRecipe(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.STRIPPED_CHARRED_LOG);
+				pressurePlate(DesolationBlocks.CHARRED_PRESSURE_PLATE, DesolationBlocks.CHARRED_PLANKS);
 
-				offerPlanksRecipe(DesolationBlocks.CHARRED_PLANKS, DesolationItemTags.CHARRED_LOGS, 4);
+				shaped(RecipeCategory.DECORATIONS, DesolationBlocks.CHARRED_SIGN, 3)
+						.group("sign")
+						.pattern("###")
+						.pattern("###")
+						.pattern(" X ")
+						.define('#', DesolationBlocks.CHARRED_PLANKS)
+						.define('X', Items.STICK)
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				offerPressurePlateRecipe(DesolationBlocks.CHARRED_PRESSURE_PLATE, DesolationBlocks.CHARRED_PLANKS);
+				slab(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.CHARRED_SLAB, DesolationBlocks.CHARRED_PLANKS);
 
-				createSignRecipe(DesolationBlocks.CHARRED_SIGN, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
+				stairBuilder(DesolationBlocks.CHARRED_STAIRS, Ingredient.of(DesolationBlocks.CHARRED_PLANKS))
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				offerSlabRecipe(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.CHARRED_SLAB, DesolationBlocks.CHARRED_PLANKS);
+				trapdoorBuilder(DesolationBlocks.CHARRED_TRAPDOOR, Ingredient.of(DesolationBlocks.CHARRED_PLANKS))
+						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
+						.save(exporter);
 
-				createStairsRecipe(DesolationBlocks.CHARRED_STAIRS, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
-
-				createTrapdoorRecipe(DesolationBlocks.CHARRED_TRAPDOOR, Ingredient.ofItems(DesolationBlocks.CHARRED_PLANKS))
-						.criterion("has_planks", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_PLANKS))
-						.offerTo(exporter);
-
-				createShaped(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.CHARRED_WOOD, 3)
+				shaped(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.CHARRED_WOOD, 3)
 						.pattern("LL")
 						.pattern("LL")
-						.input('L', DesolationBlocks.CHARRED_LOG)
-						.criterion("has_logs", InventoryChangedCriterion.Conditions.items(DesolationBlocks.CHARRED_LOG))
-						.offerTo(exporter);
+						.define('L', DesolationBlocks.CHARRED_LOG)
+						.unlockedBy("has_logs", has(DesolationBlocks.CHARRED_LOG))
+						.save(exporter);
 
-				createShaped(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.STRIPPED_CHARRED_WOOD, 3)
+				shaped(RecipeCategory.BUILDING_BLOCKS, DesolationBlocks.STRIPPED_CHARRED_WOOD, 3)
 						.pattern("LL")
 						.pattern("LL")
-						.input('L', DesolationBlocks.STRIPPED_CHARRED_LOG)
-						.criterion("has_logs", InventoryChangedCriterion.Conditions.items(DesolationBlocks.STRIPPED_CHARRED_LOG))
-						.offerTo(exporter);
+						.define('L', DesolationBlocks.STRIPPED_CHARRED_LOG)
+						.unlockedBy("has_logs", has(DesolationBlocks.STRIPPED_CHARRED_LOG))
+						.save(exporter);
 			}
 		};
 	}
@@ -167,6 +157,6 @@ public class DesolationRecipeProvider extends FabricRecipeProvider {
 
 	@Override
 	protected Identifier getRecipeIdentifier(Identifier identifier) {
-		return Identifier.of(Desolation.MOD_ID, identifier.getPath());
+		return Identifier.fromNamespaceAndPath(Desolation.MOD_ID, identifier.getPath());
 	}
 }
