@@ -5,7 +5,7 @@ import com.terraformersmc.biolith.api.biome.sub.BiomeParameterTargets;
 import com.terraformersmc.biolith.api.biome.sub.Criterion;
 import com.terraformersmc.biolith.api.biome.sub.CriterionBuilder;
 import com.terraformersmc.biolith.api.surface.SurfaceGeneration;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistrySetupCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -22,12 +22,14 @@ public class DesolationBiolithGeneration {
 	}
 
 	public static void init() {
-		// Register the surface rules. In 26.2, SurfaceRules.isBiome resolves biome keys
-		// eagerly against a HolderGetter, so the rules must be built once a biome registry
-		// containing this mod's biomes is available. DynamicRegistrySetupCallback fires with
-		// that registry access as the dynamic registries are set up for a world.
-		DynamicRegistrySetupCallback.EVENT.register(registryView -> {
-			HolderGetter<Biome> biomes = registryView.asRegistryAccess().lookupOrThrow(Registries.BIOME);
+		// Register the surface rules. The rule resolves the charred_forests biome tag, which is
+		// only bound once datapacks have loaded. DynamicRegistrySetupCallback is too early (biomes
+		// absent / "Tags not bound"), so register at SERVER_STARTING where the frozen registry
+		// access has both the mod's data-driven biomes and their bound tags. Biolith keeps mod
+		// rules in a static collector and materializes them later during chunk generation, so this
+		// still runs before the surface system is built.
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+			HolderGetter<Biome> biomes = server.registryAccess().lookupOrThrow(Registries.BIOME);
 			SurfaceGeneration.addOverworldSurfaceRules(
 					Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "surface_rules"),
 					DesolationSurfaceRules.createRules(biomes));
