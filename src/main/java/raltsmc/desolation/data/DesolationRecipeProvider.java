@@ -107,7 +107,10 @@ public class DesolationRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy("has_planks", has(DesolationBlocks.CHARRED_PLANKS))
 						.save(exporter);
 
-				hangingSign(DesolationBlocks.CHARRED_HANGING_SIGN, DesolationBlocks.STRIPPED_CHARRED_LOG);
+				hangingSignBuilder(DesolationBlocks.CHARRED_HANGING_SIGN, Ingredient.of(DesolationBlocks.STRIPPED_CHARRED_LOG))
+						.group("hanging_sign")
+						.unlockedBy("has_stripped_logs", has(DesolationBlocks.STRIPPED_CHARRED_LOG))
+						.save(exporter);
 
 				planksFromLogs(DesolationBlocks.CHARRED_PLANKS, DesolationItemTags.CHARRED_LOGS, 4);
 

@@ -19,10 +19,10 @@ public class DesolationEntityTypeTagProvider extends FabricTagsProvider.EntityTy
 		 * Basic entity type tags
 		 */
 
-		valueLookupBuilder(EntityTypeTags.ARTHROPOD)
-			.add(DesolationEntities.ASH_SCUTTLER);
+		builder(EntityTypeTags.ARTHROPOD)
+			.add(DesolationEntities.ASH_SCUTTLER.builtInRegistryHolder().key());
 
-		valueLookupBuilder(EntityTypeTags.SKELETONS)
-			.add(DesolationEntities.BLACKENED);
+		builder(EntityTypeTags.SKELETONS)
+			.add(DesolationEntities.BLACKENED.builtInRegistryHolder().key());
 	}
 }

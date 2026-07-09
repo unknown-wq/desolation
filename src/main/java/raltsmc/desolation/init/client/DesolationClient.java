@@ -23,8 +23,9 @@ public class DesolationClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // Block render layers (translucent/cutout) are now declared via the "render_type"
-        // field in each block model JSON (Fabric's BlockRenderLayerMap was removed in 26.1).
+        // Block render passes are auto-detected from each sprite's alpha in 26.2 (fully
+        // transparent -> cutout, partial -> translucent). The only override is a per-texture
+        // "force_translucent" flag emitted by datagen; there is no code-side render-layer API.
 
         EntityRendererRegistry.register(DesolationEntities.ASH_SCUTTLER, AshScuttlerEntityRenderer::new);
         EntityRendererRegistry.register(DesolationEntities.BLACKENED, BlackenedEntityRenderer::new);
