@@ -20,6 +20,7 @@ import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
 import raltsmc.desolation.Desolation;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.tag.DesolationBlockTags;
+import raltsmc.desolation.world.gen.placement.HotspotPlacement;
 
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class DesolationPlacedFeatures {
     public static final ResourceKey<PlacedFeature> PATCH_ASH_BRAMBLE = createRegistryKey("patch_ash_bramble");
     public static final ResourceKey<PlacedFeature> PLANT_CINDERFRUIT = createRegistryKey("plant_cinderfruit");
     public static final ResourceKey<PlacedFeature> GIANT_BOULDER = createRegistryKey("giant_boulder");
+
+    /** Shared noise offset so all burn-scar features (embers, ash, tufts, brambles, boulders) co-locate. */
+    private static final double HOTSPOT_SALT = 0.0D;
 
 	@SuppressWarnings("UnnecessaryReturnStatement")
 	private DesolationPlacedFeatures() {
@@ -59,23 +63,26 @@ public class DesolationPlacedFeatures {
         registerTreeFeature(context, configuredFeatures, TREES_CHARRED_FALLEN_SMALL, 3, ON_SCORCHED_EARTH, DesolationConfiguredFeatures.TREE_CHARRED_FALLEN_SMALL);
 
         // Former RANDOM_PATCH features: SIMPLE_BLOCK scattered via placement modifiers.
+        // Saplings stay uniformly spread — they are not tied to the burn-scar hotspots.
         registerPatchFeature(context, configuredFeatures, PATCH_CHARRED_SAPLING, DesolationConfiguredFeatures.PATCH_CHARRED_SAPLING,
                 2, 1, 7, 3, ON_CHARRED_SOIL);
 
-        registerPatchFeature(context, configuredFeatures, PATCH_SCORCHED_TUFT, DesolationConfiguredFeatures.PATCH_SCORCHED_TUFT,
-                8, 96, 7, 3, ON_CHARRED_SOIL);
+        // Ash, tufts and brambles cluster into hotspots. They share HOTSPOT_SALT so they pile up in
+        // the same regions (see HotspotPlacement).
+        registerHotspotPatchFeature(context, configuredFeatures, PATCH_SCORCHED_TUFT, DesolationConfiguredFeatures.PATCH_SCORCHED_TUFT,
+                2, 8, 96, 7, 3, ON_CHARRED_SOIL);
 
-        registerPatchFeature(context, configuredFeatures, PATCH_ASH_LAYER, DesolationConfiguredFeatures.PATCH_ASH_LAYER,
-                3, 128, 11, 3, ON_SCORCHED_EARTH);
+        registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_LAYER, DesolationConfiguredFeatures.PATCH_ASH_LAYER,
+                1, 4, 128, 11, 3, ON_SCORCHED_EARTH);
 
         register(context, PATCH_EMBER_CHUNK, configuredFeatures, DesolationConfiguredFeatures.PATCH_EMBER_CHUNK,
-                CountPlacement.of(4),
+                HotspotPlacement.of(HOTSPOT_SALT, 1, 6),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP,
                 BiomeFilter.biome());
 
-        registerPatchFeature(context, configuredFeatures, PATCH_ASH_BRAMBLE, DesolationConfiguredFeatures.PATCH_ASH_BRAMBLE,
-                5, 8, 6, 2, ON_ASH_BRAMBLE_GROUND);
+        registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_BRAMBLE, DesolationConfiguredFeatures.PATCH_ASH_BRAMBLE,
+                2, 4, 8, 6, 2, ON_ASH_BRAMBLE_GROUND);
 
         register(context, PLANT_CINDERFRUIT, configuredFeatures, DesolationConfiguredFeatures.PLANT_CINDERFRUIT,
                 CountPlacement.of(1),
@@ -84,7 +91,7 @@ public class DesolationPlacedFeatures {
                 BiomeFilter.biome());
 
         register(context, GIANT_BOULDER, configuredFeatures, DesolationConfiguredFeatures.GIANT_BOULDER,
-                CountPlacement.of(1),
+                HotspotPlacement.of(HOTSPOT_SALT, 0, 2),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP,
                 BiomeFilter.biome());
@@ -118,6 +125,27 @@ public class DesolationPlacedFeatures {
                                              int count, int tries, int xzSpread, int ySpread, BlockPredicate groundPredicate) {
         register(context, key, configuredFeatures, feature,
                 CountPlacement.of(count),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP,
+                CountPlacement.of(tries),
+                RandomOffsetPlacement.of(UniformInt.of(-xzSpread, xzSpread), UniformInt.of(-ySpread, ySpread)),
+                BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE),
+                BlockPredicateFilter.forPredicate(groundPredicate),
+                BiomeFilter.biome());
+    }
+
+    /**
+     * Like {@link #registerPatchFeature} but the per-chunk point count is driven by {@link HotspotPlacement}
+     * instead of a flat {@link CountPlacement}, so the patches cluster into burn-scar hotspots. The internal
+     * {@code tries}/spread (density within each point) is unchanged.
+     */
+    private static void registerHotspotPatchFeature(BootstrapContext<PlacedFeature> context,
+                                                    HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
+                                                    ResourceKey<PlacedFeature> key, ResourceKey<ConfiguredFeature<?, ?>> feature,
+                                                    int baseCount, int hotspotCount, int tries, int xzSpread, int ySpread,
+                                                    BlockPredicate groundPredicate) {
+        register(context, key, configuredFeatures, feature,
+                HotspotPlacement.of(HOTSPOT_SALT, baseCount, hotspotCount),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP,
                 CountPlacement.of(tries),
