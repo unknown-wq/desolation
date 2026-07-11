@@ -12,6 +12,7 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import raltsmc.desolation.Desolation;
 import raltsmc.desolation.client.particle.SparkParticle;
+import raltsmc.desolation.client.weather.AshRainRenderer;
 import raltsmc.desolation.client.render.entity.AshScuttlerEntityRenderer;
 import raltsmc.desolation.client.render.entity.BlackenedEntityRenderer;
 import raltsmc.desolation.registry.DesolationEntities;
@@ -31,6 +32,10 @@ public class DesolationClient implements ClientModInitializer {
         EntityRendererRegistry.register(DesolationEntities.BLACKENED, BlackenedEntityRenderer::new);
 
         ParticleProviderRegistry.getInstance().register(DesolationParticles.SPARK, SparkParticle.Factory::new);
+
+        // "Ash rain": when a storm is active over a Charred Forest, render falling ash instead of
+        // vanilla rain (the biome itself keeps precipitation disabled).
+        AshRainRenderer.register();
     }
 
     static {

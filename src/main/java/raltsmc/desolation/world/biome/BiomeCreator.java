@@ -91,7 +91,8 @@ public class BiomeCreator {
         MobSpawnSettings.Builder spawnSettings = new MobSpawnSettings.Builder();
 
         spawnSettings.addSpawn(MobCategory.AMBIENT, 1, new MobSpawnSettings.SpawnerData(DesolationEntities.ASH_SCUTTLER, 1, 2));
-        spawnSettings.addSpawn(MobCategory.MONSTER, 1, new MobSpawnSettings.SpawnerData(DesolationEntities.BLACKENED, 1, 3));
+        // Feral Blackened: higher spawn weight and larger max group make them noticeably more common in the Charred Forest.
+        spawnSettings.addSpawn(MobCategory.MONSTER, 4, new MobSpawnSettings.SpawnerData(DesolationEntities.BLACKENED, 1, 4));
 
         return spawnSettings.build();
     }

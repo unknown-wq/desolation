@@ -108,9 +108,8 @@ public final class DesolationItems {
         AIR_FILTER = DesolationRegistries.register("air_filter", Item::new, new Item.Properties());
         CINDERFRUIT = DesolationRegistries.register("cinderfruit", Item::new, new Item.Properties().food(
                 new FoodProperties.Builder()
-                        .nutrition(5)
-                        .saturationModifier(6.5F)
-                        .alwaysEdible()
+                        .nutrition(4)
+                        .saturationModifier(0.3F)
                         .build(),
                 Consumables.defaultFood()
                         .onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200), 1.0F))

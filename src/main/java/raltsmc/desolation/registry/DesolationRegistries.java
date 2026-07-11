@@ -178,6 +178,7 @@ public class DesolationRegistries {
         DesolationTrunkPlacerTypes.init();
         DesolationFoliagePlacerTypes.init();
         DesolationFeatures.init();
+        DesolationPlacementModifiers.init();
         DesolationStructures.init();
         DesolationStatusEffects.init();
         DesolationPotions.init();
