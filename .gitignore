@@ -28,3 +28,7 @@ bin/
 
 src/main/generated/
 run/
+
+# claude code local state (transient agent worktrees, etc.)
+
+.claude/
