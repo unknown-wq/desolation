@@ -105,11 +105,6 @@
         },
         {
           "type": "minecraft:item",
-          "weight": 5,
-          "name": "desolation:goggles"
-        },
-        {
-          "type": "minecraft:item",
           "weight": 2,
           "name": "desolation:music_disc_ashes"
         }
