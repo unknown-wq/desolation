@@ -78,8 +78,10 @@ public class BlackenedEntity extends Monster implements GeoEntity {
     }
 
     public static AttributeSupplier.Builder createBlackenedAttributes() {
+        // Feral tuning: +30% HP (base 20 -> 26) and +15% speed (0.19 -> 0.2185) over the vanilla Monster baseline.
         return Monster.createMonsterAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.19D)
+                .add(Attributes.MAX_HEALTH, 26.0D)
+                .add(Attributes.MOVEMENT_SPEED, 0.2185D)
                 .add(Attributes.ATTACK_DAMAGE, 6);
     }
 
