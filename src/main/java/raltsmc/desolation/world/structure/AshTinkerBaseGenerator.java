@@ -27,7 +27,23 @@ public class AshTinkerBaseGenerator extends TemplateStructurePiece {
 
     public AshTinkerBaseGenerator(StructurePieceSerializationContext context, CompoundTag nbt) {
         super(DesolationStructures.ASH_TINKER_BASE_PIECE, nbt, context.structureTemplateManager(),
-                (identifier1 -> createPlacementData(Rotation.valueOf(nbt.getStringOr("Rot", "none")))));
+                (identifier1 -> createPlacementData(readRotation(nbt))));
+    }
+
+    // addAdditionalSaveData() writes Rotation.name(), so the tag holds "NONE" rather than the
+    // serialized "none". Reading it back through valueOf() with a lowercase default threw
+    // IllegalArgumentException for any piece saved before the tag existed, which aborted chunk
+    // loading; resolve it by name and fall back to NONE for a missing or unknown value.
+    private static Rotation readRotation(CompoundTag nbt) {
+        String name = nbt.getStringOr("Rot", Rotation.NONE.name());
+
+        for (Rotation rotation : Rotation.values()) {
+            if (rotation.name().equals(name)) {
+                return rotation;
+            }
+        }
+
+        return Rotation.NONE;
     }
 
     private static StructurePlaceSettings createPlacementData(Rotation rotation) {

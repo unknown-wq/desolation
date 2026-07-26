@@ -117,7 +117,8 @@ public final class DesolationItems {
         ));
         CINDERFRUIT_SEEDS = DesolationRegistries.register("cinderfruit_seeds", properties -> new BlockItem(DesolationBlocks.CINDERFRUIT_PLANT, properties.useItemDescriptionPrefix()), new Item.Properties());
         INFUSED_POWDER = DesolationRegistries.register("infused_powder", Item::new, new Item.Properties());
-        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Properties().rarity(Rarity.RARE));
+        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Properties().rarity(Rarity.RARE)
+                .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
 
         MUSIC_DISC_ASHES = DesolationRegistries.register("music_disc_ashes", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE).jukeboxPlayable(DesolationJukeboxSongs.ASHES));
         SPAWN_EGG_ASH_SCUTTLER = DesolationRegistries.register("ash_scuttler_spawn_egg", SpawnEggItem::new,

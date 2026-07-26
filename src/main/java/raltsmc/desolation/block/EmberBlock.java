@@ -72,7 +72,7 @@ public class EmberBlock extends Block {
             if (entity instanceof LivingEntity livingEntity && !livingEntity.isInvulnerableTo(serverLevel, hotFloor)) {
                 livingEntity.hurtServer(serverLevel, hotFloor, 1.0F);
 
-                if (Math.random() > 0.9D) {
+                if (serverLevel.getRandom().nextFloat() < 0.1F) {
                     livingEntity.setRemainingFireTicks(120);
                 }
             }
@@ -135,32 +135,30 @@ public class EmberBlock extends Block {
     }
 
     private static CoolType coolsOnAnySide(BlockGetter world, BlockPos pos) {
-        boolean isTouchingWater = false;
         boolean isSmothered = true;
         BlockPos.MutableBlockPos mutable = pos.mutable();
-        Direction[] dirs = Direction.values();
+        // As in ConcretePowderBlock.touchesLiquid(), the block below only counts once the ember is
+        // already sitting in water. That check used to read the state through the shared cursor
+        // before it was offset, which only did the right thing because Direction.values() happens
+        // to start with DOWN; read the state at pos explicitly instead.
+        boolean isWaterlogged = coolsIn(world.getBlockState(pos));
 
-        for (Direction direction : dirs) {
-            BlockState blockState = world.getBlockState(mutable);
-            if (direction != Direction.DOWN || coolsIn(blockState)) {
-                mutable.setWithOffset(pos, direction);
-                blockState = world.getBlockState(mutable);
-                if (coolsIn(blockState) && !blockState.isFaceSturdy(world, pos, direction.getOpposite())) {
-                    isTouchingWater = true;
-                    break;
-                } else if (!blockState.isSolidRender()) {
-                    isSmothered = false;
-                }
+        for (Direction direction : Direction.values()) {
+            if (direction == Direction.DOWN && !isWaterlogged) {
+                continue;
+            }
+
+            mutable.setWithOffset(pos, direction);
+            BlockState neighborState = world.getBlockState(mutable);
+
+            if (coolsIn(neighborState) && !neighborState.isFaceSturdy(world, pos, direction.getOpposite())) {
+                return CoolType.TOUCHED_WATER;
+            } else if (!neighborState.isSolidRender()) {
+                isSmothered = false;
             }
         }
 
-        if (isTouchingWater) {
-            return CoolType.TOUCHED_WATER;
-        } else if (isSmothered) {
-            return CoolType.SMOTHERED;
-        } else {
-            return CoolType.NONE;
-        }
+        return isSmothered ? CoolType.SMOTHERED : CoolType.NONE;
     }
 
     private static boolean coolsIn(BlockState state) {
