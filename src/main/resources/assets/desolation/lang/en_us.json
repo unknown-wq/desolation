@@ -81,5 +81,8 @@
   "text.autoconfig.desolation.option.charredForestChance": "Charred Forest Chance",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Small Charred Forest Chance",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Charred Forest Clearing Chance",
-  "text.autoconfig.desolation.option.generateClearings": "Generate Clearings"
+  "text.autoconfig.desolation.option.generateClearings": "Generate Clearings",
+
+  "desolation.modmenu.modrinth": "Modrinth",
+  "desolation.modmenu.curseforge": "CurseForge"
 }

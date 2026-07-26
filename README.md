@@ -46,12 +46,11 @@ along with the plants and creatures that reclaim the burnt ground. This reposito
 Grab the latest release from the mod's [Modrinth](https://modrinth.com/mod/desolation/) or
 [CurseForge](https://www.curseforge.com/minecraft/mc-mods/desolation) page.
 
-Prebuilt jars for the current port are also committed under [`dist/`](dist/):
-
-| File | Minecraft |
-|---|---|
-| `desolation-1.10.0-mc26.2.jar` | 26.2 |
-| `desolation-1.10.0-mc26.1.2.jar` | 26.1.2 |
+Jars for this port are published as
+[GitHub Releases](https://github.com/raltsmc/desolation/releases). Every push and
+pull request also uploads the jars it built as the `Artifacts` bundle of the
+[Check Build](../../actions/workflows/check_build.yml) workflow run, which is the
+place to grab an unreleased build from.
 
 ## Build from Source
 
