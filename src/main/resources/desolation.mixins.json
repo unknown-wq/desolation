@@ -12,7 +12,6 @@
     "worldgen.PlacerTypeInvokers$FoliagePlacerTypeInvoker"
   ],
   "client": [
-    "client.gui.hud.InGameHudMixin",
     "client.network.ClientPlayerEntityMixin",
     "client.sound.BiomeEffectSoundPlayerMixin",
     "potion.PotionContentsComponentMixin"
