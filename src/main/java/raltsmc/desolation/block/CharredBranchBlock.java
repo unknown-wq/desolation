@@ -1,7 +1,11 @@
 package raltsmc.desolation.block;
 
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -18,7 +22,10 @@ import net.minecraft.world.level.material.Fluids;
 import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.tag.DesolationBlockTags;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,6 +41,14 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
     // These are in ticks; the intended effect is to reduce repeated searches during continuous trunk breaking.
     public static final int MINIMUM_DELAY = 60;
     public static final int DELAY_SPREAD = 100;
+
+    // Every offset inside the supported taxicab volume (3303 of them), ordered by ascending
+    // distance so a search that only needs one hit usually stops after a handful of lookups.
+    private static final Vec3i[] SUPPORT_VOLUME_OFFSETS = buildSupportVolumeOffsets();
+
+    // The 26 face, edge and corner neighbours; branches placed by CharredFoliagePlacer touch each
+    // other (and the trunk) on at least one of those, so this is the adjacency used to walk a tree.
+    private static final Vec3i[] ADJACENT_OFFSETS = buildAdjacentOffsets();
 
     public CharredBranchBlock(Properties properties) {
         super(0.01f, ParticleTypes.ASH, properties);
@@ -88,25 +103,53 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
         });
     }
 
-    // Desolation branches are leaves that do not require contiguous support,
-    // so we have to search the entire taxicab volume for blocks to notify.
+    // Desolation branches are leaves that do not require contiguous support, but everything a
+    // charred tree puts down is reachable from its trunk by hopping between touching branch and
+    // log blocks. Flooding the tree costs a fraction of sweeping the whole taxicab volume, so the
+    // sweep is only kept as a fallback for the rare log that has no branch attached to it at all.
     protected static HashMap<BlockPos, BlockState> findSupportedBranches(Level world, BlockPos trunkPos) {
+        HashMap<BlockPos, BlockState> found = floodSupportedBranches(world, trunkPos);
+
+        return found.isEmpty() ? sweepSupportedBranches(world, trunkPos) : found;
+    }
+
+    // Breadth-first walk over the branches and logs touching trunkPos, bounded by the same taxicab
+    // volume the support rules use. Positions are visited through packed longs so the search does
+    // not allocate a BlockPos for every air block it looks at.
+    private static HashMap<BlockPos, BlockState> floodSupportedBranches(Level world, BlockPos trunkPos) {
         HashMap<BlockPos, BlockState> found = new HashMap<>(256);
-        int x, y, z, xLimit, zLimit;
+        LongSet visited = new LongOpenHashSet(512);
+        LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
 
-        for (y = -SUPPORTED_MAX_TAXICAB_DISTANCE; y <= SUPPORTED_MAX_TAXICAB_DISTANCE; ++y) {
-            xLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(y);
-            for (x = -xLimit; x <= xLimit; ++x) {
-                zLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(x) - Math.abs(y);
-                for (z = -zLimit; z <= zLimit; ++z) {
-                    BlockPos pos = trunkPos.offset(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        visited.add(trunkPos.asLong());
+        queue.enqueue(trunkPos.asLong());
 
-                    if (state.is(DesolationBlocks.CHARRED_BRANCHES) &&
-                            !state.getValue(LeavesBlock.PERSISTENT) &&
+        BlockPos.MutableBlockPos current = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos neighbor = new BlockPos.MutableBlockPos();
+
+        while (!queue.isEmpty()) {
+            current.set(queue.dequeueLong());
+
+            for (Vec3i offset : ADJACENT_OFFSETS) {
+                neighbor.setWithOffset(current, offset);
+
+                if (taxicabDistance(trunkPos, neighbor) > SUPPORTED_MAX_TAXICAB_DISTANCE ||
+                        !visited.add(neighbor.asLong())) {
+                    continue;
+                }
+
+                BlockState state = world.getBlockState(neighbor);
+
+                if (state.is(DesolationBlocks.CHARRED_BRANCHES)) {
+                    queue.enqueue(neighbor.asLong());
+
+                    if (!state.getValue(LeavesBlock.PERSISTENT) &&
                             state.getValue(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED) {
-                        found.put(pos, state);
+                        found.put(neighbor.immutable(), state);
                     }
+                } else if (state.is(DesolationBlockTags.CHARRED_LOGS)) {
+                    // Keep walking the rest of the trunk so branches attached higher up are notified.
+                    queue.enqueue(neighbor.asLong());
                 }
             }
         }
@@ -114,26 +157,81 @@ public class CharredBranchBlock extends UntintedParticleLeavesBlock {
         return found;
     }
 
-    // Desolation branches are leaves that do not require contiguous support,
-    // so we may need to search the entire taxicab volume for a supporting log.
+    private static HashMap<BlockPos, BlockState> sweepSupportedBranches(Level world, BlockPos trunkPos) {
+        HashMap<BlockPos, BlockState> found = new HashMap<>(256);
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+
+        for (Vec3i offset : SUPPORT_VOLUME_OFFSETS) {
+            mutable.setWithOffset(trunkPos, offset);
+            BlockState state = world.getBlockState(mutable);
+
+            if (state.is(DesolationBlocks.CHARRED_BRANCHES) &&
+                    !state.getValue(LeavesBlock.PERSISTENT) &&
+                    state.getValue(LeavesBlock.DISTANCE) < DISTANCE_UNSUPPORTED) {
+                found.put(mutable.immutable(), state);
+            }
+        }
+
+        return found;
+    }
+
+    // Desolation branches are leaves that do not require contiguous support, so we may need to
+    // search the entire taxicab volume for a supporting log. The offsets are ordered by distance
+    // and the search returns on the first hit, so a branch that is still attached to its tree only
+    // costs a few lookups; only a branch that really lost its support pays for the full volume,
+    // and it does so exactly once because it is left at DISTANCE_UNSUPPORTED afterwards.
     protected static Optional<BlockPos> findSupportingTrunk(Level world, BlockPos branchPos) {
-        int x, y, z, xLimit, zLimit;
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
-        for (y = -SUPPORTED_MAX_TAXICAB_DISTANCE; y <= SUPPORTED_MAX_TAXICAB_DISTANCE; ++y) {
-            xLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(y);
-            for (x = -xLimit; x <= xLimit; ++x) {
-                zLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(x) - Math.abs(y);
-                for (z = -zLimit; z <= zLimit; ++z) {
-                    BlockPos pos = branchPos.offset(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        for (Vec3i offset : SUPPORT_VOLUME_OFFSETS) {
+            mutable.setWithOffset(branchPos, offset);
 
-                    if (state.is(DesolationBlockTags.CHARRED_LOGS)) {
-                        return Optional.of(pos);
+            if (world.getBlockState(mutable).is(DesolationBlockTags.CHARRED_LOGS)) {
+                return Optional.of(mutable.immutable());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static int taxicabDistance(Vec3i from, Vec3i to) {
+        return Math.abs(to.getX() - from.getX())
+                + Math.abs(to.getY() - from.getY())
+                + Math.abs(to.getZ() - from.getZ());
+    }
+
+    private static Vec3i[] buildSupportVolumeOffsets() {
+        List<Vec3i> offsets = new ArrayList<>(3303);
+
+        for (int y = -SUPPORTED_MAX_TAXICAB_DISTANCE; y <= SUPPORTED_MAX_TAXICAB_DISTANCE; ++y) {
+            int xLimit = SUPPORTED_MAX_TAXICAB_DISTANCE - Math.abs(y);
+            for (int x = -xLimit; x <= xLimit; ++x) {
+                int zLimit = xLimit - Math.abs(x);
+                for (int z = -zLimit; z <= zLimit; ++z) {
+                    offsets.add(new Vec3i(x, y, z));
+                }
+            }
+        }
+
+        offsets.sort(Comparator.comparingInt(offset ->
+                Math.abs(offset.getX()) + Math.abs(offset.getY()) + Math.abs(offset.getZ())));
+
+        return offsets.toArray(new Vec3i[0]);
+    }
+
+    private static Vec3i[] buildAdjacentOffsets() {
+        List<Vec3i> offsets = new ArrayList<>(26);
+
+        for (int x = -1; x <= 1; ++x) {
+            for (int y = -1; y <= 1; ++y) {
+                for (int z = -1; z <= 1; ++z) {
+                    if (x != 0 || y != 0 || z != 0) {
+                        offsets.add(new Vec3i(x, y, z));
                     }
                 }
             }
         }
 
-        return Optional.empty();
+        return offsets.toArray(new Vec3i[0]);
     }
 }
