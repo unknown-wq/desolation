@@ -68,6 +68,15 @@ The jar files are written to `build/libs`. To regenerate the data-driven assets
 ./gradlew runDatagen
 ```
 
+If the wrapper cannot download Gradle (restricted network — `services.gradle.org`
+redirects to GitHub release assets), a Gradle 9.6.1 distribution is vendored under
+[`gradle-dist/`](gradle-dist/):
+
+```sh
+./gradle-dist/install.sh                                  # → /opt/gradle-9.6.1
+JAVA_HOME=/path/to/jdk-25 /opt/gradle-9.6.1/bin/gradle build --no-daemon
+```
+
 Porting notes and the full 26.1.2 → 26.2 API migration are documented in
 [`MIGRATION.md`](MIGRATION.md).
 
