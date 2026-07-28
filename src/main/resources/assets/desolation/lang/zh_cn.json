@@ -66,6 +66,12 @@
 
   "text.autoconfig.desolation.option.clusterFeatures": "将地物聚集成焚烧疤痕",
   "text.autoconfig.desolation.option.hotspotDensityScale": "焚烧疤痕密度",
+  "text.autoconfig.desolation.option.charredHutEnabled": "生成焦木小屋",
+  "text.autoconfig.desolation.option.charredHutEnabled.@Tooltip": "焦木森林中被烧毁的农舍。不影响已生成的小屋。",
+  "text.autoconfig.desolation.option.charredHutRarity": "焦木小屋稀有度",
+  "text.autoconfig.desolation.option.charredHutRarity.@Tooltip": "在符合条件的地点中实际生成小屋的比例。1.0 表示使用间距允许的所有地点。",
+  "text.autoconfig.desolation.option.charredHutChestChance": "焦木小屋箱子几率",
+  "text.autoconfig.desolation.option.charredHutChestChance.@Tooltip": "小屋中仍留有箱子的几率。无人逃出的小屋更常保留箱子。",
   "text.autoconfig.desolation.option.ashRainDensity": "灰烬雨密度",
   "text.autoconfig.desolation.option.postFxHeatHaze": "余烬上方的热浪",
   "text.autoconfig.desolation.option.postFxHeatHazeStrength": "热浪强度",
