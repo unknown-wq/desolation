@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "desolation:ash_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "desolation:ash_pile"
+  }
+}

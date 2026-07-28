@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": "desolation:ash_pile",
+    "C": "desolation:activated_charcoal"
+  },
+  "pattern": [
+    "CCC",
+    "CAC",
+    "CCC"
+  ],
+  "result": {
+    "id": "desolation:primed_ash"
+  }
+}

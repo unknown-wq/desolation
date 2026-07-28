@@ -30,6 +30,8 @@
   "entity.desolation.ash_scuttler": "灰烬迅捷虫",
   "entity.desolation.blackened": "炭骨",
 
+  "hud.desolation.ashen_lung": "积灰之肺",
+
   "itemGroup.desolation.dsl_group": "荒芜 §7（Desolation）",
   "item.desolation.activated_charcoal": "活性炭",
   "item.desolation.air_filter": "空气过滤器",
@@ -55,5 +57,36 @@
   "item.minecraft.lingering_potion.effect.blindness": "滞留型失明药水",
   "item.minecraft.tipped_arrow.effect.blindness": "失明之箭",
 
-  "key.desolation.cinder_dash": "余烬猛冲"
+  "key.desolation.cinder_dash": "余烬猛冲",
+
+  "subtitles.desolation.block.ember_pop": "余烬爆裂",
+  "subtitles.desolation.music_disc.ashes": "播放《Ashes》",
+
+  "tag.item.desolation.air_filters": "荒芜空气过滤器",
+
+  "text.autoconfig.desolation.option.clusterFeatures": "将地物聚集成焚烧疤痕",
+  "text.autoconfig.desolation.option.hotspotDensityScale": "焚烧疤痕密度",
+  "text.autoconfig.desolation.option.charredHutEnabled": "生成焦木小屋",
+  "text.autoconfig.desolation.option.charredHutEnabled.@Tooltip": "焦木森林中被烧毁的农舍。不影响已生成的小屋。",
+  "text.autoconfig.desolation.option.charredHutRarity": "焦木小屋稀有度",
+  "text.autoconfig.desolation.option.charredHutRarity.@Tooltip": "在符合条件的地点中实际生成小屋的比例。1.0 表示使用间距允许的所有地点。",
+  "text.autoconfig.desolation.option.charredHutChestChance": "焦木小屋箱子几率",
+  "text.autoconfig.desolation.option.charredHutChestChance.@Tooltip": "小屋中仍留有箱子的几率。无人逃出的小屋更常保留箱子。",
+  "text.autoconfig.desolation.option.ashRainDensity": "灰烬雨密度",
+  "text.autoconfig.desolation.option.postFxHeatHaze": "余烬上方的热浪",
+  "text.autoconfig.desolation.option.postFxHeatHazeStrength": "热浪强度",
+  "text.autoconfig.desolation.option.showGogglesOverlay": "显示护目镜覆盖层",
+  "text.autoconfig.desolation.option.ashenLungEnabled": "启用积灰之肺",
+  "text.autoconfig.desolation.option.ashenLungMaxSmoke": "积灰之肺量表上限",
+  "text.autoconfig.desolation.option.ashenLungMiningFatigueThreshold": "积灰之肺挖掘疲劳阈值",
+  "text.autoconfig.desolation.option.ashenLungWeaknessThreshold": "积灰之肺虚弱阈值",
+  "text.autoconfig.desolation.option.ashenLungRecoveryRate": "积灰之肺恢复速度",
+  "text.autoconfig.desolation.option.ashenLungFilterDamageInterval": "过滤器磨损间隔",
+  "text.autoconfig.desolation.option.dashEnabled": "启用余烬猛冲",
+  "text.autoconfig.desolation.option.dashMaxCharges": "余烬猛冲次数",
+  "text.autoconfig.desolation.option.dashRechargeTicks": "余烬猛冲充能刻数",
+  "text.autoconfig.desolation.option.dashDurationTicks": "余烬猛冲持续刻数",
+  "text.autoconfig.desolation.option.dashSpeed": "余烬猛冲速度",
+  "text.autoconfig.desolation.option.dashDamage": "余烬猛冲伤害",
+  "text.autoconfig.desolation.option.dashIgniteSeconds": "余烬猛冲点燃时长"
 }

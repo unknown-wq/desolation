@@ -69,6 +69,14 @@ public class DesolationBiomeTagProvider extends FabricTagsProvider<Biome> {
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
 
+		// Deliberately not the clearing: that variant is the core of the burn, where the fire took
+		// even the standing trunks, and a recognisable cabin surviving in the middle of it would
+		// undercut the one place in the biome that is supposed to look completely swept. Homesteads
+		// belong under the trees and on the fringe.
+		builder(DesolationBiomeTags.CHARRED_HUT_HAS_STRUCTURE)
+			.addOptional(DesolationBiomes.CHARRED_FOREST)
+			.addOptional(DesolationBiomes.CHARRED_FOREST_SMALL);
+
 		builder(DesolationBiomeTags.CHARRED_FORESTS)
 			.addOptional(DesolationBiomes.CHARRED_FOREST)
 			.addOptional(DesolationBiomes.CHARRED_FOREST_CLEARING)

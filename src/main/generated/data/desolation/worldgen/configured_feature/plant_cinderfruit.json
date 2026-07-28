@@ -1,0 +1,40 @@
+{
+  "type": "desolation:scattered",
+  "config": {
+    "blacklist": [
+      {
+        "Name": "minecraft:air"
+      },
+      {
+        "Name": "minecraft:water",
+        "Properties": {
+          "level": "0"
+        }
+      }
+    ],
+    "can_replace": false,
+    "fail_chance": 0.92,
+    "gen_in_water": false,
+    "modify_ground": false,
+    "need_water": false,
+    "project": true,
+    "state_provider": {
+      "type": "minecraft:simple_state_provider",
+      "state": {
+        "Name": "desolation:cinderfruit_plant",
+        "Properties": {
+          "age": "1"
+        }
+      }
+    },
+    "tries": 1,
+    "whitelist": [
+      {
+        "Name": "desolation:charred_soil"
+      }
+    ],
+    "xspread": 0,
+    "yspread": 0,
+    "zspread": 0
+  }
+}

@@ -19,8 +19,8 @@ public class DesolationBiomes {
     }
 
     public static void bootstrap(BootstrapContext<Biome> context) {
-        context.register(CHARRED_FOREST, BiomeCreator.createCharredForest(context, false, false));
-        context.register(CHARRED_FOREST_CLEARING, BiomeCreator.createCharredForest(context, true, true));
-        context.register(CHARRED_FOREST_SMALL, BiomeCreator.createCharredForest(context, false, true));
+        context.register(CHARRED_FOREST, BiomeCreator.createCharredForest(context, BiomeCreator.Variant.DENSE));
+        context.register(CHARRED_FOREST_CLEARING, BiomeCreator.createCharredForest(context, BiomeCreator.Variant.CLEARING));
+        context.register(CHARRED_FOREST_SMALL, BiomeCreator.createCharredForest(context, BiomeCreator.Variant.SMALL));
     }
 }

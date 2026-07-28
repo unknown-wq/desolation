@@ -26,7 +26,9 @@ bin/
 
 # fabric
 
-src/main/generated/
+# the generated pack itself is committed - the build reads it out of the source tree, so a fresh
+# clone that has never run datagen has to have it. Only the generator's hash cache is transient.
+src/main/generated/.cache/
 run/
 
 # claude code local state (transient agent worktrees, etc.)

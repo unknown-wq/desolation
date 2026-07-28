@@ -12,7 +12,7 @@ jobs:
       matrix:
         # Use these Java versions
         java: [
-          21    # Minimum
+          25    # Minimum
         ]
         os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
@@ -26,17 +26,31 @@ jobs:
       - name: Setup JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: ${{ matrix.java }}
       - name: Make Gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      - name: Data Gen
-        run: ./gradlew runDatagen --stacktrace
+      # src/main/generated is committed, so the checkout already carries the models,
+      # blockstates, tags and loot tables that the jar and the game tests need.
       - name: Build
-        run: ./gradlew build --stacktrace -x runDatagen
+        run: ./gradlew assemble --stacktrace
+      # check runs the game tests in src/gametest against a headless server.
+      - name: Game tests
+        run: ./gradlew check --stacktrace
+      # A committed generated pack is only worth having while it matches the generators
+      # that produce it, so rebuild it and refuse a checkout that has drifted.
+      - name: Data generation is up to date
+        run: |
+          ./gradlew runDatagen --stacktrace
+          if [ -n "$(git status --porcelain -- src/main/generated)" ]; then
+            echo "::error::src/main/generated is stale. Run ./gradlew runDatagen and commit the result."
+            git status --porcelain -- src/main/generated
+            git --no-pager diff -- src/main/generated
+            exit 1
+          fi
       - name: Capture build artifacts
-        if: ${{ runner.os == 'Linux' && matrix.java == '21' }} # Only upload artifacts built from LTS java on one OS
+        if: ${{ runner.os == 'Linux' && matrix.java == '25' }} # Only upload artifacts built from LTS java on one OS
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "charcoal",
+  "ingredients": [
+    "minecraft:charcoal"
+  ],
+  "result": {
+    "count": 4,
+    "id": "desolation:charcoal_bit"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_sign_rot_2",
+  "textures": {
+    "all": "desolation:block/charred_sign",
+    "particle": "desolation:block/charred_planks"
+  }
+}

@@ -13,6 +13,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import raltsmc.desolation.Desolation;
 import raltsmc.desolation.registry.DesolationBiomes;
+import raltsmc.desolation.world.biome.DesolationBiomeModifications;
 import raltsmc.desolation.world.gen.surfacerules.DesolationSurfaceRules;
 
 public class DesolationBiolithGeneration {
@@ -22,6 +23,10 @@ public class DesolationBiolithGeneration {
 	}
 
 	public static void init() {
+		// Spawns shared by all charred forest variants, hung off the biome tag so datapacks and
+		// other mods can extend the same roster.
+		DesolationBiomeModifications.init();
+
 		// Register the surface rules. The rule resolves the charred_forests biome tag, which is
 		// only bound once datapacks have loaded. DynamicRegistrySetupCallback is too early (biomes
 		// absent / "Tags not bound"), so register at SERVER_STARTING where the frozen registry

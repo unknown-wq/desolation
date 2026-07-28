@@ -1,0 +1,8 @@
+{
+  "type": "desolation:giant_boulder",
+  "config": {
+    "state": {
+      "Name": "minecraft:stone"
+    }
+  }
+}

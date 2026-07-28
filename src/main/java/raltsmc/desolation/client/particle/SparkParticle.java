@@ -33,9 +33,11 @@ public class SparkParticle extends SingleQuadParticle {
         this.spriteProvider = spriteProvider;
         this.setSpriteFromAge(spriteProvider);
 
-        this.windConstantX = (Math.random() - 0.5D) * 2D;
-        this.windConstantY = Math.random() - 0.5D;
-        this.windConstantZ = (Math.random() - 0.5D) * 2D;
+        // this.random, not Math.random(): the latter is a single globally synchronised generator and
+        // particles are constructed in bulk on the render thread.
+        this.windConstantX = (this.random.nextDouble() - 0.5D) * 2D;
+        this.windConstantY = this.random.nextDouble() - 0.5D;
+        this.windConstantZ = (this.random.nextDouble() - 0.5D) * 2D;
     }
 
     @Override

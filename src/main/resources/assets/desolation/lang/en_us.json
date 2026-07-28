@@ -38,6 +38,8 @@
   "entity.desolation.ash_scuttler": "Ash Scuttler",
   "entity.desolation.blackened": "Blackened",
 
+  "hud.desolation.ashen_lung": "Ashen Lung",
+
   "itemGroup.desolation.dsl_group": "Desolation",
   "item.desolation.activated_charcoal": "Activated Charcoal",
   "item.desolation.air_filter": "Air Filter",
@@ -71,6 +73,10 @@
   "potion.cinder_soul.tooltip_a": "Grants Cinder Dash",
   "potion.cinder_soul.tooltip_b": "Grants Fire Resistance",
 
+  "subtitles.desolation.block.ember_pop": "Ember pops",
+  "subtitles.desolation.music_disc.ashes": "Ashes plays",
+
+  "tag.item.desolation.air_filters": "Desolation Air Filters",
   "tag.item.desolation.charred_logs": "Desolation Charred Logs",
 
   "text.autoconfig.desolation.title": "Desolation Config",
@@ -78,8 +84,35 @@
   "text.autoconfig.desolation.category.generation": "Generation",
   "text.autoconfig.desolation.option.showGogglesOverlay": "Show Goggles Overlay",
   "text.autoconfig.desolation.option.biomeSoundAmbience": "Biome Sound Ambience",
+  "text.autoconfig.desolation.option.ashenLungEnabled": "Ashen Lung Enabled",
+  "text.autoconfig.desolation.option.ashenLungMaxSmoke": "Ashen Lung Meter Size",
+  "text.autoconfig.desolation.option.ashenLungMiningFatigueThreshold": "Ashen Lung Mining Fatigue Threshold",
+  "text.autoconfig.desolation.option.ashenLungWeaknessThreshold": "Ashen Lung Weakness Threshold",
+  "text.autoconfig.desolation.option.ashenLungRecoveryRate": "Ashen Lung Recovery Rate",
+  "text.autoconfig.desolation.option.ashenLungFilterDamageInterval": "Ashen Lung Filter Wear Interval",
+  "text.autoconfig.desolation.option.dashEnabled": "Cinder Dash Enabled",
+  "text.autoconfig.desolation.option.dashMaxCharges": "Cinder Dash Charges",
+  "text.autoconfig.desolation.option.dashRechargeTicks": "Cinder Dash Recharge Ticks",
+  "text.autoconfig.desolation.option.dashDurationTicks": "Cinder Dash Duration Ticks",
+  "text.autoconfig.desolation.option.dashSpeed": "Cinder Dash Speed",
+  "text.autoconfig.desolation.option.dashDamage": "Cinder Dash Damage",
+  "text.autoconfig.desolation.option.dashIgniteSeconds": "Cinder Dash Burn Duration",
   "text.autoconfig.desolation.option.charredForestChance": "Charred Forest Chance",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Small Charred Forest Chance",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Charred Forest Clearing Chance",
-  "text.autoconfig.desolation.option.generateClearings": "Generate Clearings"
+  "text.autoconfig.desolation.option.generateClearings": "Generate Clearings",
+  "text.autoconfig.desolation.option.clusterFeatures": "Cluster Features Into Burn Scars",
+  "text.autoconfig.desolation.option.hotspotDensityScale": "Burn Scar Density",
+  "text.autoconfig.desolation.option.charredHutEnabled": "Generate Charred Huts",
+  "text.autoconfig.desolation.option.charredHutEnabled.@Tooltip": "Burnt-out homesteads in charred forests. Existing huts are unaffected.",
+  "text.autoconfig.desolation.option.charredHutRarity": "Charred Hut Rarity",
+  "text.autoconfig.desolation.option.charredHutRarity.@Tooltip": "Fraction of eligible sites that actually get a hut. 1.0 uses every site the spacing allows.",
+  "text.autoconfig.desolation.option.charredHutChestChance": "Charred Hut Chest Chance",
+  "text.autoconfig.desolation.option.charredHutChestChance.@Tooltip": "How often a hut still has a chest in it. Huts nobody escaped keep theirs more often.",
+  "text.autoconfig.desolation.option.ashRainDensity": "Ash Rain Density",
+  "text.autoconfig.desolation.option.postFxHeatHaze": "Heat Haze Over Embers",
+  "text.autoconfig.desolation.option.postFxHeatHazeStrength": "Heat Haze Strength",
+
+  "desolation.modmenu.modrinth": "Modrinth",
+  "desolation.modmenu.curseforge": "CurseForge"
 }

@@ -4,19 +4,25 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import raltsmc.desolation.Desolation;
+import raltsmc.desolation.client.hud.DesolationHudElements;
 import raltsmc.desolation.client.particle.SparkParticle;
 import raltsmc.desolation.client.weather.AshRainRenderer;
 import raltsmc.desolation.client.render.entity.AshScuttlerEntityRenderer;
 import raltsmc.desolation.client.render.entity.BlackenedEntityRenderer;
+import raltsmc.desolation.init.server.CinderSoulC2SPacket;
 import raltsmc.desolation.registry.DesolationEntities;
 import raltsmc.desolation.registry.DesolationParticles;
+import raltsmc.desolation.registry.DesolationStatusEffects;
 
 @Environment(EnvType.CLIENT)
 public class DesolationClient implements ClientModInitializer {
@@ -36,6 +42,37 @@ public class DesolationClient implements ClientModInitializer {
         // "Ash rain": when a storm is active over a Charred Forest, render falling ash instead of
         // vanilla rain (the biome itself keeps precipitation disabled).
         AshRainRenderer.register();
+
+        DesolationHudElements.register();
+
+        ClientTickEvents.END_CLIENT_TICK.register(DesolationClient::tickCinderDashBinding);
+    }
+
+    /**
+     * Drains the key binding's click queue and turns a press into one intent packet. Using
+     * {@link KeyMapping#consumeClick()} instead of {@code isDown()} means holding the key fires once
+     * rather than once per tick, and the client never decides whether the dash actually happens.
+     */
+    private static void tickCinderDashBinding(net.minecraft.client.Minecraft client) {
+        boolean pressed = false;
+
+        while (cinderDashBinding.consumeClick()) {
+            pressed = true;
+        }
+
+        LocalPlayer player = client.player;
+
+        if (!pressed || player == null || player.isSpectator()) {
+            return;
+        }
+
+        if (!player.hasEffect(DesolationStatusEffects.CINDER_SOUL_HOLDER)) {
+            return;
+        }
+
+        if (ClientPlayNetworking.canSend(CinderSoulC2SPacket.ID)) {
+            ClientPlayNetworking.send(new CinderSoulC2SPacket(CinderSoulC2SPacket.Action.DASH));
+        }
     }
 
     static {

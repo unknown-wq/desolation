@@ -32,6 +32,8 @@
   "entity.desolation.ash_scuttler": "Пепельный Щитовик",
   "entity.desolation.blackened": "Сожжённый Скелет",
 
+  "hud.desolation.ashen_lung": "Пепельные Лёгкие",
+
   "itemGroup.desolation.dsl_group": "Desolation",
   "item.desolation.activated_charcoal": "Активированный Уголь",
   "item.desolation.air_filter": "Воздушный Фильтр",
@@ -62,8 +64,13 @@
 
   "key.desolation.cinder_dash": "Огненный Рывок",
 
+  "tag.item.desolation.air_filters": "Воздушные Фильтры Desolation",
+
   "potion.cinder_soul.tooltip_a": "Дар Огненного Рывка",
   "potion.cinder_soul.tooltip_b": "Дар Огнестойкости",
+
+  "subtitles.desolation.block.ember_pop": "Треск тлеющего угля",
+  "subtitles.desolation.music_disc.ashes": "Играет «Ashes»",
 
   "text.autoconfig.desolation.title": "Настройки мода 'Desolation'",
   "text.autoconfig.desolation.category.default": "Основное",
@@ -73,5 +80,29 @@
   "text.autoconfig.desolation.option.charredForestChance": "Шанс Генерации Выженного Леса",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Шанс Генерации Небольшого Выженного Леса",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Шанс Генерации Выженной Лесной Поляны",
-  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны"
+  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны",
+  "text.autoconfig.desolation.option.clusterFeatures": "Группировать Объекты в Выгоревшие Пятна",
+  "text.autoconfig.desolation.option.hotspotDensityScale": "Плотность Выгоревших Пятен",
+  "text.autoconfig.desolation.option.charredHutEnabled": "Генерация Сгоревших Хижин",
+  "text.autoconfig.desolation.option.charredHutEnabled.@Tooltip": "Выгоревшие жилища в выжженных лесах. На уже сгенерированные хижины не влияет.",
+  "text.autoconfig.desolation.option.charredHutRarity": "Редкость Сгоревших Хижин",
+  "text.autoconfig.desolation.option.charredHutRarity.@Tooltip": "Доля подходящих мест, где хижина действительно появится. 1.0 — использовать все места, которые позволяет шаг сетки.",
+  "text.autoconfig.desolation.option.charredHutChestChance": "Шанс Сундука в Сгоревшей Хижине",
+  "text.autoconfig.desolation.option.charredHutChestChance.@Tooltip": "Как часто в хижине остаётся сундук. Там, откуда никто не вышел, он сохраняется чаще.",
+  "text.autoconfig.desolation.option.ashRainDensity": "Плотность Пепельного Дождя",
+  "text.autoconfig.desolation.option.postFxHeatHaze": "Марево над Углями",
+  "text.autoconfig.desolation.option.postFxHeatHazeStrength": "Сила Марева",
+  "text.autoconfig.desolation.option.ashenLungEnabled": "Включить Пепельные Лёгкие",
+  "text.autoconfig.desolation.option.ashenLungMaxSmoke": "Размер Шкалы Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungMiningFatigueThreshold": "Порог Усталости Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungWeaknessThreshold": "Порог Слабости Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungRecoveryRate": "Скорость Восстановления Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungFilterDamageInterval": "Интервал Износа Фильтра",
+  "text.autoconfig.desolation.option.dashEnabled": "Включить Огненный Рывок",
+  "text.autoconfig.desolation.option.dashMaxCharges": "Заряды Огненного Рывка",
+  "text.autoconfig.desolation.option.dashRechargeTicks": "Тики Перезарядки Огненного Рывка",
+  "text.autoconfig.desolation.option.dashDurationTicks": "Длительность Огненного Рывка в Тиках",
+  "text.autoconfig.desolation.option.dashSpeed": "Скорость Огненного Рывка",
+  "text.autoconfig.desolation.option.dashDamage": "Урон Огненного Рывка",
+  "text.autoconfig.desolation.option.dashIgniteSeconds": "Длительность Поджога Огненным Рывком"
 }

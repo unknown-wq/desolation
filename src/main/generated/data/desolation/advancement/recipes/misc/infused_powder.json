@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cinderfruit": {
+      "conditions": {
+        "items": [
+          {
+            "items": "desolation:cinderfruit"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "desolation:infused_powder"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_cinderfruit"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "desolation:infused_powder"
+    ]
+  }
+}

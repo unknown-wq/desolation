@@ -4,8 +4,10 @@ import net.fabricmc.fabric.api.registry.CompostableRegistry;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HangingSignItem;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.item.equipment.Equippable;
 import raltsmc.desolation.item.AshItem;
 import raltsmc.desolation.item.CinderHeartItem;
 
@@ -105,7 +108,15 @@ public final class DesolationItems {
         //GLASS_SHARD = DesolationRegistries.register("glass_shard", Item::new, new Item.Properties());
         PRIMED_ASH = DesolationRegistries.register("primed_ash", Item::new, new Item.Properties());
         ACTIVATED_CHARCOAL = DesolationRegistries.register("activated_charcoal", Item::new, new Item.Properties());
-        AIR_FILTER = DesolationRegistries.register("air_filter", Item::new, new Item.Properties());
+        // Worn on the head to hold the "Ashen Lung" meter at bay. Equipping is pure data in 26.2:
+        // no armor asset is set, so nothing is rendered on the player model, only the slot is claimed.
+        AIR_FILTER = DesolationRegistries.register("air_filter", Item::new, new Item.Properties()
+                .durability(256)
+                .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD)
+                        .setEquipSound(SoundEvents.ARMOR_EQUIP_LEATHER)
+                        .setSwappable(true)
+                        .setEquipOnInteract(true)
+                        .build()));
         CINDERFRUIT = DesolationRegistries.register("cinderfruit", Item::new, new Item.Properties().food(
                 new FoodProperties.Builder()
                         .nutrition(4)
@@ -117,7 +128,8 @@ public final class DesolationItems {
         ));
         CINDERFRUIT_SEEDS = DesolationRegistries.register("cinderfruit_seeds", properties -> new BlockItem(DesolationBlocks.CINDERFRUIT_PLANT, properties.useItemDescriptionPrefix()), new Item.Properties());
         INFUSED_POWDER = DesolationRegistries.register("infused_powder", Item::new, new Item.Properties());
-        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Properties().rarity(Rarity.RARE));
+        HEART_OF_CINDER = DesolationRegistries.register("heart_of_cinder", CinderHeartItem::new, new Item.Properties().rarity(Rarity.RARE)
+                .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
 
         MUSIC_DISC_ASHES = DesolationRegistries.register("music_disc_ashes", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE).jukeboxPlayable(DesolationJukeboxSongs.ASHES));
         SPAWN_EGG_ASH_SCUTTLER = DesolationRegistries.register("ash_scuttler_spawn_egg", SpawnEggItem::new,

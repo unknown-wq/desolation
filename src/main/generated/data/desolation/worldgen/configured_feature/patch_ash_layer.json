@@ -1,0 +1,82 @@
+{
+  "type": "minecraft:simple_block",
+  "config": {
+    "to_place": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "1"
+            }
+          },
+          "weight": 30
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "2"
+            }
+          },
+          "weight": 20
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "3"
+            }
+          },
+          "weight": 15
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "4"
+            }
+          },
+          "weight": 13
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "5"
+            }
+          },
+          "weight": 10
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "6"
+            }
+          },
+          "weight": 7
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "7"
+            }
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "desolation:ash",
+            "Properties": {
+              "layers": "8"
+            }
+          },
+          "weight": 2
+        }
+      ]
+    }
+  }
+}

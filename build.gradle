@@ -62,6 +62,15 @@ processResources {
 	}
 }
 
+// provision a JDK 25 toolchain instead of relying on the JDK that runs Gradle, so the
+// build works on machines (and CI runners) whose default JDK is older than the release
+// level required below
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
 // ensure that the encoding is set to UTF-8, no matter what the system default is
 // this fixes some edge cases with special characters not displaying correctly
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
@@ -86,12 +95,52 @@ fabricApi {
 	configureDataGeneration {
 		client = true
 	}
+
+	// Adds the "gametest" source set plus the runGameTest task, which is wired into "check".
+	configureTests {
+		createSourceSet = true
+		modId = "desolation-gametest"
+		eula = true
+	}
+}
+
+// the game tests live in their own mod but drive the main one, so they compile and run against it
+sourceSets {
+	gametest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
 }
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
 	withSourcesJar()
+}
+
+// The generated pack in src/main/generated is committed rather than ignored, so it is a source
+// input like any other: Loom mounts it as a resource directory of the main source set, which puts
+// it in build/resources/main, which is what the jar AND every run configuration read.
+//
+// It has to work that way round because runDatagen cannot be sequenced ahead of processResources.
+// The generator is the game itself, launched from the main runtime classpath, so runDatagen
+// depends on processResources; asking processResources to wait for it in turn is a dependency
+// cycle. Any arrangement that generates the pack and consumes it in the same Gradle invocation
+// therefore hands the run tasks whatever build/resources/main held before the generator ran.
+// Committing the output sidesteps that entirely, and CI re-runs the generators and fails on drift
+// so the committed copy cannot quietly rot.
+//
+// If the directory is missing, say so here rather than letting the game die a hundred lines into
+// a game test complaining about an unbound biome tag.
+tasks.named("processResources") {
+	doFirst {
+		if (!file("src/main/generated/data").isDirectory()
+				&& !gradle.taskGraph.allTasks.any { it.name == "runDatagen" }) {
+			throw new GradleException("src/main/generated is missing. It is committed to git: " +
+					"restore it with 'git checkout -- src/main/generated', or rebuild it with " +
+					"'./gradlew runDatagen' before building again.")
+		}
+	}
 }
 
 jar {

@@ -1,0 +1,43 @@
+{
+  "feature": "desolation:tree_charred",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": {
+        "type": "minecraft:weighted_list",
+        "distribution": [
+          {
+            "data": 15,
+            "weight": 9
+          },
+          {
+            "data": 16,
+            "weight": 1
+          }
+        ]
+      }
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING"
+    },
+    {
+      "type": "minecraft:block_predicate_filter",
+      "predicate": {
+        "type": "minecraft:matching_block_tag",
+        "offset": [
+          0,
+          -1,
+          0
+        ],
+        "tag": "desolation:scorched_earth"
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

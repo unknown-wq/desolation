@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    "desolation:charred_planks"
+  ],
+  "result": {
+    "id": "desolation:charred_button"
+  }
+}

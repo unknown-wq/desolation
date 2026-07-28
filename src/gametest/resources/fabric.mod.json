@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "desolation-gametest",
+  "version": "1.0.0",
+
+  "name": "Desolation Game Tests",
+  "description": "Server-side game tests for Desolation. Never shipped with the mod.",
+  "authors": [
+    "raltsmc"
+  ],
+
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "raltsmc.desolation.gametest.DesolationGameTests",
+      "raltsmc.desolation.gametest.CharredHutGameTests"
+    ]
+  },
+
+  "depends": {
+    "desolation": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

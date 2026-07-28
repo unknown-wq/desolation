@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": "desolation:activated_charcoal",
+    "F": "desolation:cinderfruit"
+  },
+  "pattern": [
+    "CCC",
+    "CFC",
+    "CCC"
+  ],
+  "result": {
+    "id": "desolation:infused_powder"
+  }
+}

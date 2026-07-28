@@ -13,6 +13,7 @@ import net.minecraft.world.level.biome.Biome;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -47,17 +48,24 @@ public class BiomeEffectSoundPlayerMixin {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void desolation$stopSound(CallbackInfo ci) {
+        // This runs every client tick, so bail out on the config flag before paying for a biome
+        // lookup: with ambience left enabled (the default) the injection costs one field read.
+        if (Desolation.CONFIG.biomeSoundAmbience || !desolation$inDesolationBiome()) {
+            return;
+        }
+
+        if (!loopSounds.isEmpty()) {
+            loopSounds.values().forEach(soundManager::stop);
+            loopSounds.clear();
+        }
+        previousLoopSound = null;
+        ci.cancel();
+    }
+
+    @Unique
+    private boolean desolation$inDesolationBiome() {
         Optional<ResourceKey<Biome>> biomeKey = player.level().getBiome(player.blockPosition()).unwrapKey();
 
-        if (!Desolation.CONFIG.biomeSoundAmbience
-                && biomeKey.isPresent()
-                && Desolation.MOD_ID.equals(biomeKey.get().identifier().getNamespace())) {
-            if (!loopSounds.isEmpty()) {
-                loopSounds.values().forEach(soundManager::stop);
-                loopSounds.clear();
-            }
-            previousLoopSound = null;
-            ci.cancel();
-        }
+        return biomeKey.isPresent() && Desolation.MOD_ID.equals(biomeKey.get().identifier().getNamespace());
     }
 }

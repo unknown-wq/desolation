@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "desolation:charred_forest",
+      "required": false
+    },
+    {
+      "id": "desolation:charred_forest_small",
+      "required": false
+    }
+  ]
+}

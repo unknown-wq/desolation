@@ -1,0 +1,44 @@
+{
+  "type": "desolation:scattered",
+  "config": {
+    "blacklist": [],
+    "can_replace": true,
+    "fail_chance": 0.0,
+    "gen_in_water": false,
+    "modify_ground": true,
+    "need_water": false,
+    "project": true,
+    "state_provider": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "desolation:ember_block"
+          },
+          "weight": 1
+        },
+        {
+          "data": {
+            "Name": "desolation:cooled_ember_block"
+          },
+          "weight": 1
+        }
+      ]
+    },
+    "tries": 5,
+    "whitelist": [
+      {
+        "Name": "desolation:charred_soil"
+      },
+      {
+        "Name": "desolation:ember_block"
+      },
+      {
+        "Name": "desolation:cooled_ember_block"
+      }
+    ],
+    "xspread": 3,
+    "yspread": 0,
+    "zspread": 3
+  }
+}

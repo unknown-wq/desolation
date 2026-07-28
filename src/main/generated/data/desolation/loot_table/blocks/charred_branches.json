@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "chance": 0.18,
+              "condition": "minecraft:random_chance"
+            }
+          ],
+          "name": "minecraft:stick"
+        }
+      ],
+      "rolls": 2.0
+    }
+  ]
+}

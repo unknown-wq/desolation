@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "desolation:item/ash_scuttler_spawn_egg"
+  }
+}

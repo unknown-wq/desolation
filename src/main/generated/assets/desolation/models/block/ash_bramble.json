@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": {
+      "force_translucent": true,
+      "sprite": "desolation:block/ash_bramble"
+    }
+  }
+}

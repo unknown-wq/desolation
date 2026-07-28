@@ -9,6 +9,7 @@ import raltsmc.desolation.Desolation;
 @SuppressWarnings("SameParameterValue")
 public final class DesolationBiomeTags {
 	public static final TagKey<Biome> ASH_TINKER_BASE_HAS_STRUCTURE = DesolationBiomeTags.of("ash_tinker_base_has_structure");
+	public static final TagKey<Biome> CHARRED_HUT_HAS_STRUCTURE = DesolationBiomeTags.of("charred_hut_has_structure");
 
 	/** Charred Forest biomes (all variants); used by the surface rules to place charred soil. */
 	public static final TagKey<Biome> CHARRED_FORESTS = DesolationBiomeTags.of("charred_forests");
