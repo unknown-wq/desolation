@@ -8,6 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import raltsmc.desolation.registry.DesolationBlocks;
+import raltsmc.desolation.registry.DesolationItems;
 import raltsmc.desolation.tag.DesolationBlockTags;
 import raltsmc.desolation.tag.DesolationItemTags;
 
@@ -20,6 +21,9 @@ public class DesolationItemTagProvider extends FabricTagsProvider.ItemTagsProvid
 
 	@Override
 	public void addTags(HolderLookup.Provider registries) {
+		builder(DesolationItemTags.AIR_FILTERS)
+			.add(DesolationItems.AIR_FILTER.builtInRegistryHolder().key());
+
 		copy(BlockTags.LEAVES, ItemTags.LEAVES);
 
 		copy(BlockTags.LOGS, ItemTags.LOGS);

@@ -32,6 +32,8 @@
   "entity.desolation.ash_scuttler": "Пепельный Щитовик",
   "entity.desolation.blackened": "Сожжённый Скелет",
 
+  "hud.desolation.ashen_lung": "Пепельные Лёгкие",
+
   "itemGroup.desolation.dsl_group": "Desolation",
   "item.desolation.activated_charcoal": "Активированный Уголь",
   "item.desolation.air_filter": "Воздушный Фильтр",
@@ -62,6 +64,8 @@
 
   "key.desolation.cinder_dash": "Огненный Рывок",
 
+  "tag.item.desolation.air_filters": "Воздушные Фильтры Desolation",
+
   "potion.cinder_soul.tooltip_a": "Дар Огненного Рывка",
   "potion.cinder_soul.tooltip_b": "Дар Огнестойкости",
 
@@ -73,5 +77,18 @@
   "text.autoconfig.desolation.option.charredForestChance": "Шанс Генерации Выженного Леса",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Шанс Генерации Небольшого Выженного Леса",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Шанс Генерации Выженной Лесной Поляны",
-  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны"
+  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны",
+  "text.autoconfig.desolation.option.ashenLungEnabled": "Включить Пепельные Лёгкие",
+  "text.autoconfig.desolation.option.ashenLungMaxSmoke": "Размер Шкалы Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungMiningFatigueThreshold": "Порог Усталости Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungWeaknessThreshold": "Порог Слабости Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungRecoveryRate": "Скорость Восстановления Пепельных Лёгких",
+  "text.autoconfig.desolation.option.ashenLungFilterDamageInterval": "Интервал Износа Фильтра",
+  "text.autoconfig.desolation.option.dashEnabled": "Включить Огненный Рывок",
+  "text.autoconfig.desolation.option.dashMaxCharges": "Заряды Огненного Рывка",
+  "text.autoconfig.desolation.option.dashRechargeTicks": "Тики Перезарядки Огненного Рывка",
+  "text.autoconfig.desolation.option.dashDurationTicks": "Длительность Огненного Рывка в Тиках",
+  "text.autoconfig.desolation.option.dashSpeed": "Скорость Огненного Рывка",
+  "text.autoconfig.desolation.option.dashDamage": "Урон Огненного Рывка",
+  "text.autoconfig.desolation.option.dashIgniteSeconds": "Длительность Поджога Огненным Рывком"
 }
