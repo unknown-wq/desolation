@@ -6,6 +6,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -27,15 +28,25 @@ import raltsmc.desolation.world.feature.DesolationPlacedFeatures;
  * neighbours, so a mistake there is invisible until branches stop falling (or start falling off
  * healthy trees).
  *
- * <p>Every test runs inside the 8x8x8 air template the game test API ships as
+ * <p>Most tests run inside the 8x8x8 air template the game test API ships as
  * {@code fabric-gametest-api-v1:empty}, which is the default structure of {@link GameTest}, so
- * none of them needs a template of its own. Run them with {@code ./gradlew runGameTest}; the
- * task is also wired into {@code check}, and therefore into {@code build}.
+ * they need no template of their own; the tree test grows out of that box and brings its own.
+ * Run them with {@code ./gradlew runGameTest}; the task is also wired into {@code check}, and
+ * therefore into {@code build}.
  */
 public class DesolationGameTests {
     // notifyLossOfSupport() delays each branch by MINIMUM_DELAY + rand(DELAY_SPREAD) ticks.
     private static final int SUPPORT_CHECK_TICKS =
             CharredBranchBlock.MINIMUM_DELAY + CharredBranchBlock.DELAY_SPREAD;
+
+    // Three planting spots in tree_arena, spaced eight blocks apart so no tree can reach into
+    // its neighbour's foliage, each paired with the seed it is grown from.
+    private static final BlockPos[] TREE_SPOTS = {
+            new BlockPos(3, 0, 3),
+            new BlockPos(11, 0, 3),
+            new BlockPos(3, 0, 11)
+    };
+    private static final long[] TREE_SEEDS = {40210L, 40211L, 40212L};
 
     @GameTest(maxTicks = SUPPORT_CHECK_TICKS * 3)
     public void charredBranchesFallWhenTheirTrunkIsBroken(GameTestHelper helper) {
@@ -128,23 +139,33 @@ public class DesolationGameTests {
         helper.succeed();
     }
 
-    // The tree feature picks its trunk height and scatters its branches at random, so give it a
-    // few goes before calling a failure a failure.
-    @GameTest(maxAttempts = 4, requiredSuccesses = 1)
+    // TREE_CHARRED_SMALL rolls a four to six block trunk and stacks two more layers of foliage
+    // on top of it, so a tall roll wants nine blocks of headroom. The default template is eight
+    // blocks tall and the framework seals the arena under a barrier lid whenever skyAccess is
+    // left off, so TreeFeature ran out of room and refused to generate on the taller rolls -
+    // which is what made this test flaky. tree_arena is a 16x16x16 box that clears the tallest
+    // possible tree with room to spare, and each tree grows from a fixed seed instead of the
+    // level's random, so the same three trunks come out on every run: a failure here is a
+    // regression in the feature, never an unlucky draw.
+    @GameTest(structure = "desolation-gametest:tree_arena")
     public void charredTreeFeatureGrowsLogsAndBranches(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
-        BlockPos soil = new BlockPos(3, 0, 3);
-
-        helper.setBlock(soil, Blocks.DIRT.defaultBlockState());
 
         ConfiguredFeature<?, ?> tree = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE)
                 .getOrThrow(DesolationConfiguredFeatures.TREE_CHARRED_SMALL).value();
 
-        helper.assertTrue(
-                tree.place(level, level.getChunkSource().getGenerator(), level.getRandom(), helper.absolutePos(soil.above())),
-                "the small charred tree feature refused to generate");
+        for (int i = 0; i < TREE_SPOTS.length; ++i) {
+            BlockPos soil = TREE_SPOTS[i];
 
-        helper.assertBlockPresent(DesolationBlocks.CHARRED_LOG, soil.above());
+            helper.setBlock(soil, Blocks.DIRT.defaultBlockState());
+
+            boolean grew = tree.place(level, level.getChunkSource().getGenerator(),
+                    RandomSource.create(TREE_SEEDS[i]), helper.absolutePos(soil.above()));
+
+            helper.assertTrue(grew, "the small charred tree feature refused to generate at " + soil);
+            helper.assertBlockPresent(DesolationBlocks.CHARRED_LOG, soil.above());
+        }
+
         helper.assertBlockPresent(DesolationBlocks.CHARRED_BRANCHES);
         helper.succeed();
     }
