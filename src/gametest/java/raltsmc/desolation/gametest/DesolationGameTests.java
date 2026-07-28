@@ -26,6 +26,11 @@ import raltsmc.desolation.world.feature.DesolationPlacedFeatures;
  * {@link CharredBranchBlock}: it no longer sweeps the whole taxicab volume looking for
  * neighbours, so a mistake there is invisible until branches stop falling (or start falling off
  * healthy trees).
+ *
+ * <p>Every test runs inside the 8x8x8 air template the game test API ships as
+ * {@code fabric-gametest-api-v1:empty}, which is the default structure of {@link GameTest}, so
+ * none of them needs a template of its own. Run them with {@code ./gradlew runGameTest}; the
+ * task is also wired into {@code check}, and therefore into {@code build}.
  */
 public class DesolationGameTests {
     // notifyLossOfSupport() delays each branch by MINIMUM_DELAY + rand(DELAY_SPREAD) ticks.
