@@ -31,13 +31,24 @@ jobs:
       - name: Make Gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      # The jar task depends on runDatagen, so assemble regenerates the models,
-      # blockstates, tags and loot tables that src/main/generated does not track.
+      # src/main/generated is committed, so the checkout already carries the models,
+      # blockstates, tags and loot tables that the jar and the game tests need.
       - name: Build
         run: ./gradlew assemble --stacktrace
       # check runs the game tests in src/gametest against a headless server.
       - name: Game tests
         run: ./gradlew check --stacktrace
+      # A committed generated pack is only worth having while it matches the generators
+      # that produce it, so rebuild it and refuse a checkout that has drifted.
+      - name: Data generation is up to date
+        run: |
+          ./gradlew runDatagen --stacktrace
+          if [ -n "$(git status --porcelain -- src/main/generated)" ]; then
+            echo "::error::src/main/generated is stale. Run ./gradlew runDatagen and commit the result."
+            git status --porcelain -- src/main/generated
+            git --no-pager diff -- src/main/generated
+            exit 1
+          fi
       - name: Capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '25' }} # Only upload artifacts built from LTS java on one OS
         uses: actions/upload-artifact@v4

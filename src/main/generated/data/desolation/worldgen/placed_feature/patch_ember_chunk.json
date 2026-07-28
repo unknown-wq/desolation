@@ -1,0 +1,25 @@
+{
+  "feature": "desolation:patch_ember_chunk",
+  "placement": [
+    {
+      "type": "desolation:hotspot",
+      "base_count": 1,
+      "enabled": true,
+      "frequency": 0.02,
+      "hotspot_count": 6,
+      "intensity": 1.0,
+      "salt": 0.0,
+      "threshold": 0.3
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

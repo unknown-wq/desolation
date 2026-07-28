@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:bone_meal",
+    "minecraft:charcoal",
+    "minecraft:clay_ball"
+  ],
+  "result": {
+    "id": "minecraft:gunpowder"
+  }
+}

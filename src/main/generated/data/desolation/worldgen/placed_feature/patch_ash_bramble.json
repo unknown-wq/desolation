@@ -1,0 +1,65 @@
+{
+  "feature": "desolation:patch_ash_bramble",
+  "placement": [
+    {
+      "type": "desolation:hotspot",
+      "base_count": 2,
+      "enabled": true,
+      "frequency": 0.02,
+      "hotspot_count": 4,
+      "intensity": 1.0,
+      "salt": 0.0,
+      "threshold": 0.3
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "MOTION_BLOCKING"
+    },
+    {
+      "type": "minecraft:count",
+      "count": 8
+    },
+    {
+      "type": "minecraft:random_offset",
+      "xz_spread": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 6,
+        "min_inclusive": -6
+      },
+      "y_spread": {
+        "type": "minecraft:uniform",
+        "max_inclusive": 2,
+        "min_inclusive": -2
+      }
+    },
+    {
+      "type": "minecraft:block_predicate_filter",
+      "predicate": {
+        "type": "minecraft:matching_block_tag",
+        "tag": "minecraft:air"
+      }
+    },
+    {
+      "type": "minecraft:block_predicate_filter",
+      "predicate": {
+        "type": "minecraft:matching_blocks",
+        "blocks": [
+          "desolation:charred_soil",
+          "desolation:charred_log",
+          "desolation:ash_bramble"
+        ],
+        "offset": [
+          0,
+          -1,
+          0
+        ]
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

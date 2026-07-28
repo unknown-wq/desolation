@@ -118,19 +118,32 @@ java {
 	withSourcesJar()
 }
 
-// src/main/generated is git-ignored while Loom mounts it as a resource directory, so a clean
-// clone that never ran datagen used to produce a perfectly valid jar with no models, blockstates,
-// tags or loot tables inside it. runDatagen launches the game from the processed resources and so
-// cannot be sequenced ahead of processResources; instead the jar depends on it and folds the
-// freshly generated pack in, which also covers the very first build in a fresh clone.
-jar {
-	dependsOn tasks.named("runDatagen")
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-	from(file("src/main/generated")) {
-		exclude ".cache/**"
+// The generated pack in src/main/generated is committed rather than ignored, so it is a source
+// input like any other: Loom mounts it as a resource directory of the main source set, which puts
+// it in build/resources/main, which is what the jar AND every run configuration read.
+//
+// It has to work that way round because runDatagen cannot be sequenced ahead of processResources.
+// The generator is the game itself, launched from the main runtime classpath, so runDatagen
+// depends on processResources; asking processResources to wait for it in turn is a dependency
+// cycle. Any arrangement that generates the pack and consumes it in the same Gradle invocation
+// therefore hands the run tasks whatever build/resources/main held before the generator ran.
+// Committing the output sidesteps that entirely, and CI re-runs the generators and fails on drift
+// so the committed copy cannot quietly rot.
+//
+// If the directory is missing, say so here rather than letting the game die a hundred lines into
+// a game test complaining about an unbound biome tag.
+tasks.named("processResources") {
+	doFirst {
+		if (!file("src/main/generated/data").isDirectory()
+				&& !gradle.taskGraph.allTasks.any { it.name == "runDatagen" }) {
+			throw new GradleException("src/main/generated is missing. It is committed to git: " +
+					"restore it with 'git checkout -- src/main/generated', or rebuild it with " +
+					"'./gradlew runDatagen' before building again.")
+		}
 	}
+}
 
+jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name}" }
 	}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_activated_charcoal_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "desolation:activated_charcoal_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "desolation:activated_charcoal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_activated_charcoal_block"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "desolation:activated_charcoal"
+    ]
+  }
+}
