@@ -56,7 +56,7 @@ A prebuilt jar for the current port is committed under [`dist/`](dist/):
 
 | File | Minecraft |
 |---|---|
-| `desolation-2.0.0-mc26.2.jar` | 26.2 |
+| `desolation-2.0.1-mc26.2.jar` | 26.2 |
 
 Every push and pull request also uploads the jars it built as the `Artifacts`
 bundle of the [Check Build](../../actions/workflows/check_build.yml) workflow run,
