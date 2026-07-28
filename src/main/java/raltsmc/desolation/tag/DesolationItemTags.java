@@ -8,6 +8,12 @@ import raltsmc.desolation.Desolation;
 
 @SuppressWarnings("SameParameterValue")
 public final class DesolationItemTags {
+	/**
+	 * Head-slot gear that filters ash out of the air (see the "Ashen Lung" meter). Checked as a tag
+	 * rather than as a single item so add-ons and datapacks can contribute their own masks.
+	 */
+	public static final TagKey<Item> AIR_FILTERS = DesolationItemTags.of("air_filters");
+
 	public static final TagKey<Item> CHARRED_LOGS = DesolationItemTags.of("charred_logs");
 
 	@SuppressWarnings("UnnecessaryReturnStatement")

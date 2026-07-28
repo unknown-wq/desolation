@@ -38,6 +38,8 @@
   "entity.desolation.ash_scuttler": "Ash Scuttler",
   "entity.desolation.blackened": "Blackened",
 
+  "hud.desolation.ashen_lung": "Ashen Lung",
+
   "itemGroup.desolation.dsl_group": "Desolation",
   "item.desolation.activated_charcoal": "Activated Charcoal",
   "item.desolation.air_filter": "Air Filter",
@@ -71,6 +73,7 @@
   "potion.cinder_soul.tooltip_a": "Grants Cinder Dash",
   "potion.cinder_soul.tooltip_b": "Grants Fire Resistance",
 
+  "tag.item.desolation.air_filters": "Desolation Air Filters",
   "tag.item.desolation.charred_logs": "Desolation Charred Logs",
 
   "text.autoconfig.desolation.title": "Desolation Config",
@@ -78,6 +81,19 @@
   "text.autoconfig.desolation.category.generation": "Generation",
   "text.autoconfig.desolation.option.showGogglesOverlay": "Show Goggles Overlay",
   "text.autoconfig.desolation.option.biomeSoundAmbience": "Biome Sound Ambience",
+  "text.autoconfig.desolation.option.ashenLungEnabled": "Ashen Lung Enabled",
+  "text.autoconfig.desolation.option.ashenLungMaxSmoke": "Ashen Lung Meter Size",
+  "text.autoconfig.desolation.option.ashenLungMiningFatigueThreshold": "Ashen Lung Mining Fatigue Threshold",
+  "text.autoconfig.desolation.option.ashenLungWeaknessThreshold": "Ashen Lung Weakness Threshold",
+  "text.autoconfig.desolation.option.ashenLungRecoveryRate": "Ashen Lung Recovery Rate",
+  "text.autoconfig.desolation.option.ashenLungFilterDamageInterval": "Ashen Lung Filter Wear Interval",
+  "text.autoconfig.desolation.option.dashEnabled": "Cinder Dash Enabled",
+  "text.autoconfig.desolation.option.dashMaxCharges": "Cinder Dash Charges",
+  "text.autoconfig.desolation.option.dashRechargeTicks": "Cinder Dash Recharge Ticks",
+  "text.autoconfig.desolation.option.dashDurationTicks": "Cinder Dash Duration Ticks",
+  "text.autoconfig.desolation.option.dashSpeed": "Cinder Dash Speed",
+  "text.autoconfig.desolation.option.dashDamage": "Cinder Dash Damage",
+  "text.autoconfig.desolation.option.dashIgniteSeconds": "Cinder Dash Burn Duration",
   "text.autoconfig.desolation.option.charredForestChance": "Charred Forest Chance",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Small Charred Forest Chance",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Charred Forest Clearing Chance",
