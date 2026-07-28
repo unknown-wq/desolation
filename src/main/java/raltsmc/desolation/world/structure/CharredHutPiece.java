@@ -183,7 +183,7 @@ public class CharredHutPiece extends StructurePiece {
         RandomSource random = RandomSource.create(this.seed);
 
         this.clearPlot(level, box);
-        this.layGround(level, box, random);
+        this.layGround(level, box);
         this.layFloor(level, box, random);
         this.raiseWalls(level, box, random);
         this.buildChimney(level, box, random);
@@ -214,7 +214,7 @@ public class CharredHutPiece extends StructurePiece {
     }
 
     /** The homestead was cleared ground before the fire and is scoured earth after it. */
-    private void layGround(WorldGenLevel level, BoundingBox box, RandomSource random) {
+    private void layGround(WorldGenLevel level, BoundingBox box) {
         BlockState soil = DesolationBlocks.CHARRED_SOIL.defaultBlockState();
 
         for (int x = 0; x < PLOT_SIZE; ++x) {
@@ -237,7 +237,9 @@ public class CharredHutPiece extends StructurePiece {
                 return;
             }
 
-            if (!level.getBlockState(pos).isAir() && !level.getBlockState(pos).liquid()) {
+            BlockState below = level.getBlockState(pos);
+
+            if (!below.isAir() && !below.liquid()) {
                 return;
             }
 

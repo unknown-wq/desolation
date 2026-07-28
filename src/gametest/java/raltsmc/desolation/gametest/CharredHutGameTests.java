@@ -17,9 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -28,6 +30,7 @@ import raltsmc.desolation.registry.DesolationBlocks;
 import raltsmc.desolation.registry.DesolationLootTables;
 import raltsmc.desolation.tag.DesolationBiomeTags;
 import raltsmc.desolation.world.structure.CharredHutPiece;
+import raltsmc.desolation.world.structure.CharredHutStructure;
 import raltsmc.desolation.world.structure.DesolationStructureFeatures;
 import raltsmc.desolation.world.structure.DesolationStructureSets;
 
@@ -306,6 +309,14 @@ public class CharredHutGameTests {
                 .getOrThrow(DesolationStructureFeatures.CHARRED_HUT).value();
         StructureSet set = level.registryAccess().lookupOrThrow(Registries.STRUCTURE_SET)
                 .getOrThrow(DesolationStructureSets.CHARRED_HUTS).value();
+
+        // Reaching this instance at all means the generated JSON parsed through our structure type's
+        // codec, which is the half of the registration that a compile cannot check.
+        helper.assertTrue(structure instanceof CharredHutStructure,
+                "desolation:charred_hut did not deserialise into a CharredHutStructure");
+        helper.assertValueEqual(structure.step(), GenerationStep.Decoration.SURFACE_STRUCTURES, "charred hut step");
+        helper.assertValueEqual(structure.terrainAdaptation(), TerrainAdjustment.BEARD_THIN,
+                "charred hut terrain adaptation");
 
         helper.assertTrue(set.placement() instanceof RandomSpreadStructurePlacement,
                 "the charred hut structure set is not spread at random");
