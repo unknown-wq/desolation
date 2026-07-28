@@ -39,6 +39,16 @@ public class DesolationConfig implements ConfigData {
     @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart
     public boolean generateClearings = true;
 
+    // Charred Hut. Spacing and separation live in the structure set (data, so datapacks can retune
+    // them); what is here is the switch, a thinning factor applied on top of the spacing, and how
+    // often a hut still has anything left in it worth opening.
+    @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart @ConfigEntry.Gui.Tooltip
+    public boolean charredHutEnabled = true;
+    @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart @ConfigEntry.Gui.Tooltip
+    public double charredHutRarity = 0.8D;
+    @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart @ConfigEntry.Gui.Tooltip
+    public double charredHutChestChance = 0.45D;
+
     // Feature clustering ("hotspots" / burn scars). The shape of the scars (frequency, threshold,
     // intensity) lives in the placed features themselves so datapacks can retune it; what is left
     // here is a global switch and a density multiplier, snapshotted once per world rather than read
@@ -61,6 +71,8 @@ public class DesolationConfig implements ConfigData {
         smallCharredForestChance = Mth.clamp(smallCharredForestChance, 0.01D, 1D);
         charredForestClearingChance = Mth.clamp(charredForestClearingChance, 0.01D, 1D);
         hotspotDensityScale = Mth.clamp(hotspotDensityScale, 0.0D, 5.0D);
+        charredHutRarity = Mth.clamp(charredHutRarity, 0.0D, 1.0D);
+        charredHutChestChance = Mth.clamp(charredHutChestChance, 0.0D, 1.0D);
         ashRainDensity = Mth.clamp(ashRainDensity, 0.0D, 3.0D);
         postFxHeatHazeStrength = Mth.clamp(postFxHeatHazeStrength, 0.0D, 3.0D);
 

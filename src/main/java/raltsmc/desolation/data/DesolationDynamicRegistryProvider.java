@@ -11,6 +11,8 @@ import raltsmc.desolation.registry.DesolationBiomes;
 import raltsmc.desolation.registry.DesolationJukeboxSongs;
 import raltsmc.desolation.world.feature.DesolationConfiguredFeatures;
 import raltsmc.desolation.world.feature.DesolationPlacedFeatures;
+import raltsmc.desolation.world.structure.DesolationStructureFeatures;
+import raltsmc.desolation.world.structure.DesolationStructureSets;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +27,8 @@ public class DesolationDynamicRegistryProvider extends FabricDynamicRegistryProv
 		registryBuilder.add(Registries.PLACED_FEATURE, DesolationPlacedFeatures::bootstrap);
 		registryBuilder.add(Registries.BIOME, DesolationBiomes::bootstrap);
 		registryBuilder.add(Registries.JUKEBOX_SONG, DesolationJukeboxSongs::bootstrap);
+		registryBuilder.add(Registries.STRUCTURE, DesolationStructureFeatures::bootstrap);
+		registryBuilder.add(Registries.STRUCTURE_SET, DesolationStructureSets::bootstrap);
 	}
 
 	@Override
@@ -33,6 +37,8 @@ public class DesolationDynamicRegistryProvider extends FabricDynamicRegistryProv
 		addAll(entries, registries.lookupOrThrow(Registries.PLACED_FEATURE), Desolation.MOD_ID);
 		addAll(entries, registries.lookupOrThrow(Registries.BIOME), Desolation.MOD_ID);
 		addAll(entries, registries.lookupOrThrow(Registries.JUKEBOX_SONG), Desolation.MOD_ID);
+		addAll(entries, registries.lookupOrThrow(Registries.STRUCTURE), Desolation.MOD_ID);
+		addAll(entries, registries.lookupOrThrow(Registries.STRUCTURE_SET), Desolation.MOD_ID);
 	}
 
 	@Override

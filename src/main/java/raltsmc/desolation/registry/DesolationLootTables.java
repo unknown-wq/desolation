@@ -9,6 +9,7 @@ import raltsmc.desolation.Desolation;
 public class DesolationLootTables {
     public static final ResourceKey<LootTable> ASH_SCUTTLER_DIG = ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "misc/ash_scuttler_dig"));
     public static final ResourceKey<LootTable> ASH_TINKER_BASE = ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "chests/ash_tinker_base"));
+    public static final ResourceKey<LootTable> CHARRED_HUT = ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath(Desolation.MOD_ID, "chests/charred_hut"));
 
     @SuppressWarnings("UnnecessaryReturnStatement")
     private DesolationLootTables() {
