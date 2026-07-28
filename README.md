@@ -18,7 +18,12 @@ along with the plants and creatures that reclaim the burnt ground. This reposito
 ## Features
 
 - **Charred Forest biome** (plus small and clearing variants) that replaces forests and taigas during
-  world generation, with its own surface rules laying down charred soil and ash.
+  world generation, with its own surface rules laying down charred soil and ash. Each variant has its
+  own palette, ambience, spawns and ash density.
+- **Charred Hut** — the remains of a homestead the fire caught, generated in three states of collapse
+  and two endings: the people who got out, and the ones who did not.
+- **Ashen Lung** — breathing ash-laden air fills a meter rather than applying a flat debuff, and the
+  **Air Filter** is worn on the head to hold it back.
 - **Charred wood set** — logs, wood, stripped variants, planks, stairs, slabs, fences, fence gates,
   doors, trapdoors, buttons, pressure plates, standing/wall signs and hanging signs.
 - **Charred trees** — full, small and fallen variants generated with custom trunk and foliage placers.
@@ -27,7 +32,8 @@ along with the plants and creatures that reclaim the burnt ground. This reposito
 - **Flora** — charred saplings (and potted), charred branches, ash brambles, scorched tufts and the
   edible **Cinderfruit** plant grown from seeds.
 - **Creatures** — the **Ash Scuttler** and the **Blackened**, rendered with GeckoLib animations.
-- **Cinder Dash** — a bindable movement ability with spark particle effects.
+- **Cinder Dash** — a bindable movement ability with charges, applied and validated by the server;
+  dashing through a mob hurts and ignites it.
 - **In-game config** via Cloth Config / Mod Menu (biome spawn chances, clearings, and more).
 
 ## Requirements
@@ -46,11 +52,15 @@ along with the plants and creatures that reclaim the burnt ground. This reposito
 Grab the latest release from the mod's [Modrinth](https://modrinth.com/mod/desolation/) or
 [CurseForge](https://www.curseforge.com/minecraft/mc-mods/desolation) page.
 
-Jars for this port are published as
-[GitHub Releases](https://github.com/raltsmc/desolation/releases). Every push and
-pull request also uploads the jars it built as the `Artifacts` bundle of the
-[Check Build](../../actions/workflows/check_build.yml) workflow run, which is the
-place to grab an unreleased build from.
+A prebuilt jar for the current port is committed under [`dist/`](dist/):
+
+| File | Minecraft |
+|---|---|
+| `desolation-2.0.0-mc26.2.jar` | 26.2 |
+
+Every push and pull request also uploads the jars it built as the `Artifacts`
+bundle of the [Check Build](../../actions/workflows/check_build.yml) workflow run,
+which is the place to grab an unreleased build from.
 
 ## Build from Source
 
