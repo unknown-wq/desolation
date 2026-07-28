@@ -14,6 +14,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import raltsmc.desolation.Desolation;
+import raltsmc.desolation.client.hud.DesolationHudElements;
 import raltsmc.desolation.client.particle.SparkParticle;
 import raltsmc.desolation.client.weather.AshRainRenderer;
 import raltsmc.desolation.client.render.entity.AshScuttlerEntityRenderer;
@@ -41,6 +42,8 @@ public class DesolationClient implements ClientModInitializer {
         // "Ash rain": when a storm is active over a Charred Forest, render falling ash instead of
         // vanilla rain (the biome itself keeps precipitation disabled).
         AshRainRenderer.register();
+
+        DesolationHudElements.register();
 
         ClientTickEvents.END_CLIENT_TICK.register(DesolationClient::tickCinderDashBinding);
     }
