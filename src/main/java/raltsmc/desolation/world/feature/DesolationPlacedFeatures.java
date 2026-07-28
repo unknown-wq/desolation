@@ -38,6 +38,14 @@ public class DesolationPlacedFeatures {
     public static final ResourceKey<PlacedFeature> PLANT_CINDERFRUIT = createRegistryKey("plant_cinderfruit");
     public static final ResourceKey<PlacedFeature> GIANT_BOULDER = createRegistryKey("giant_boulder");
 
+    // Per-biome-variant ash and ember densities. The clearing is where the fire burned hottest and
+    // longest, so it drowns in ash and glowing coals; the small forest is the thinning edge of the
+    // burn and barely shows any.
+    public static final ResourceKey<PlacedFeature> PATCH_ASH_LAYER_DEEP = createRegistryKey("patch_ash_layer_deep");
+    public static final ResourceKey<PlacedFeature> PATCH_ASH_LAYER_SPARSE = createRegistryKey("patch_ash_layer_sparse");
+    public static final ResourceKey<PlacedFeature> PATCH_EMBER_CHUNK_DEEP = createRegistryKey("patch_ember_chunk_deep");
+    public static final ResourceKey<PlacedFeature> PATCH_EMBER_CHUNK_SPARSE = createRegistryKey("patch_ember_chunk_sparse");
+
     /** Shared noise offset so all burn-scar features (embers, ash, tufts, brambles, boulders) co-locate. */
     private static final double HOTSPOT_SALT = 0.0D;
 
@@ -75,11 +83,17 @@ public class DesolationPlacedFeatures {
         registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_LAYER, DesolationConfiguredFeatures.PATCH_ASH_LAYER,
                 1, 4, 128, 11, 3, ON_SCORCHED_EARTH);
 
-        register(context, PATCH_EMBER_CHUNK, configuredFeatures, DesolationConfiguredFeatures.PATCH_EMBER_CHUNK,
-                HotspotPlacement.of(HOTSPOT_SALT, 1, 6),
-                InSquarePlacement.spread(),
-                PlacementUtils.HEIGHTMAP,
-                BiomeFilter.biome());
+        registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_LAYER_DEEP, DesolationConfiguredFeatures.PATCH_ASH_LAYER,
+                2, 7, 176, 13, 3, ON_SCORCHED_EARTH);
+
+        registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_LAYER_SPARSE, DesolationConfiguredFeatures.PATCH_ASH_LAYER,
+                1, 2, 72, 9, 3, ON_SCORCHED_EARTH);
+
+        registerEmberFeature(context, configuredFeatures, PATCH_EMBER_CHUNK, 1, 6);
+
+        registerEmberFeature(context, configuredFeatures, PATCH_EMBER_CHUNK_DEEP, 2, 11);
+
+        registerEmberFeature(context, configuredFeatures, PATCH_EMBER_CHUNK_SPARSE, 0, 3);
 
         registerHotspotPatchFeature(context, configuredFeatures, PATCH_ASH_BRAMBLE, DesolationConfiguredFeatures.PATCH_ASH_BRAMBLE,
                 2, 4, 8, 6, 2, ON_ASH_BRAMBLE_GROUND);
@@ -90,10 +104,14 @@ public class DesolationPlacedFeatures {
                 PlacementUtils.HEIGHTMAP,
                 BiomeFilter.biome());
 
+        // The boulder used to walk downwards from the heightmap until it found charred soil, which
+        // meant a column without any would tunnel to bedrock height and bury the rock. Gate on the
+        // surface block here instead, in data, where a datapack can retarget it.
         register(context, GIANT_BOULDER, configuredFeatures, DesolationConfiguredFeatures.GIANT_BOULDER,
                 HotspotPlacement.of(HOTSPOT_SALT, 0, 2),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP,
+                BlockPredicateFilter.forPredicate(ON_CHARRED_SOIL),
                 BiomeFilter.biome());
     }
 
@@ -131,6 +149,17 @@ public class DesolationPlacedFeatures {
                 RandomOffsetPlacement.of(UniformInt.of(-xzSpread, xzSpread), UniformInt.of(-ySpread, ySpread)),
                 BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE),
                 BlockPredicateFilter.forPredicate(groundPredicate),
+                BiomeFilter.biome());
+    }
+
+    /** Ember chunks: scattered by the feature itself, so only the hotspot count varies per variant. */
+    private static void registerEmberFeature(BootstrapContext<PlacedFeature> context,
+                                             HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
+                                             ResourceKey<PlacedFeature> key, int baseCount, int hotspotCount) {
+        register(context, key, configuredFeatures, DesolationConfiguredFeatures.PATCH_EMBER_CHUNK,
+                HotspotPlacement.of(HOTSPOT_SALT, baseCount, hotspotCount),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP,
                 BiomeFilter.biome());
     }
 

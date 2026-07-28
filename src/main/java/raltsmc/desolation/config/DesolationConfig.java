@@ -39,25 +39,30 @@ public class DesolationConfig implements ConfigData {
     @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart
     public boolean generateClearings = true;
 
-    // Feature clustering ("hotspots" / burn scars). Read live during chunk generation, so no restart
-    // is required — changes take effect on newly generated chunks.
-    @ConfigEntry.Category("generation")
+    // Feature clustering ("hotspots" / burn scars). The shape of the scars (frequency, threshold,
+    // intensity) lives in the placed features themselves so datapacks can retune it; what is left
+    // here is a global switch and a density multiplier, snapshotted once per world rather than read
+    // per chunk — otherwise neighbouring chunks would generate against different values and seam.
+    @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart
     public boolean clusterFeatures = true;
-    @ConfigEntry.Category("generation")
-    public double hotspotFrequency = 0.02D;
-    @ConfigEntry.Category("generation")
-    public double hotspotThreshold = 0.30D;
-    @ConfigEntry.Category("generation")
-    public double hotspotIntensity = 1.0D;
+    @ConfigEntry.Category("generation") @ConfigEntry.Gui.RequiresRestart
+    public double hotspotDensityScale = 1.0D;
+
+    // Client-side "ash rain" (see AshRainRenderer). 0 disables the effect entirely.
+    public double ashRainDensity = 1.0D;
+
+    // Client-side heat shimmer over ember clusters (see HeatHazeEffect).
+    public boolean postFxHeatHaze = true;
+    public double postFxHeatHazeStrength = 1.0D;
 
     @Override
     public void validatePostLoad() {
         charredForestChance = Mth.clamp(charredForestChance, 0.01D, 1D);
         smallCharredForestChance = Mth.clamp(smallCharredForestChance, 0.01D, 1D);
         charredForestClearingChance = Mth.clamp(charredForestClearingChance, 0.01D, 1D);
-        hotspotFrequency = Mth.clamp(hotspotFrequency, 0.002D, 0.2D);
-        hotspotThreshold = Mth.clamp(hotspotThreshold, -1.0D, 0.95D);
-        hotspotIntensity = Mth.clamp(hotspotIntensity, 0.0D, 5.0D);
+        hotspotDensityScale = Mth.clamp(hotspotDensityScale, 0.0D, 5.0D);
+        ashRainDensity = Mth.clamp(ashRainDensity, 0.0D, 3.0D);
+        postFxHeatHazeStrength = Mth.clamp(postFxHeatHazeStrength, 0.0D, 3.0D);
 
         ashenLungMaxSmoke = Mth.clamp(ashenLungMaxSmoke, 20, 24000);
         ashenLungMiningFatigueThreshold = Mth.clamp(ashenLungMiningFatigueThreshold, 1, ashenLungMaxSmoke);
