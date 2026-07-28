@@ -95,6 +95,21 @@ fabricApi {
 	configureDataGeneration {
 		client = true
 	}
+
+	// Adds the "gametest" source set plus the runGameTest task, which is wired into "check".
+	configureTests {
+		createSourceSet = true
+		modId = "desolation-gametest"
+		eula = true
+	}
+}
+
+// the game tests live in their own mod but drive the main one, so they compile and run against it
+sourceSets {
+	gametest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
 }
 
 java {
@@ -103,7 +118,19 @@ java {
 	withSourcesJar()
 }
 
+// src/main/generated is git-ignored while Loom mounts it as a resource directory, so a clean
+// clone that never ran datagen used to produce a perfectly valid jar with no models, blockstates,
+// tags or loot tables inside it. runDatagen launches the game from the processed resources and so
+// cannot be sequenced ahead of processResources; instead the jar depends on it and folds the
+// freshly generated pack in, which also covers the very first build in a fresh clone.
 jar {
+	dependsOn tasks.named("runDatagen")
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	from(file("src/main/generated")) {
+		exclude ".cache/**"
+	}
+
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name}" }
 	}
