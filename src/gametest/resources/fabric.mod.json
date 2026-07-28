@@ -13,7 +13,8 @@
   "environment": "*",
   "entrypoints": {
     "fabric-gametest": [
-      "raltsmc.desolation.gametest.DesolationGameTests"
+      "raltsmc.desolation.gametest.DesolationGameTests",
+      "raltsmc.desolation.gametest.CharredHutGameTests"
     ]
   },
 
