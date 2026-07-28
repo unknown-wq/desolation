@@ -12,6 +12,13 @@ import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfi
 import raltsmc.desolation.registry.DesolationBlocks;
 
 public class GiantBoulderFeature extends Feature<BlockStateConfiguration> {
+    /**
+     * How far the boulder may sink looking for charred soil. The placed feature already filters for
+     * a charred-soil surface, so this only absorbs the odd one-block ledge; without a bound the old
+     * code tunnelled all the way down to y=3 and buried boulders deep underground.
+     */
+    private static final int MAX_DESCENT = 4;
+
     public GiantBoulderFeature(Codec<BlockStateConfiguration> codec) {
         super(codec);
     }
@@ -25,16 +32,20 @@ public class GiantBoulderFeature extends Feature<BlockStateConfiguration> {
     public boolean generate(WorldGenLevel world, ChunkGenerator chunkGenerator, RandomSource random,
                             BlockPos blockPos, BlockStateConfiguration config) {
 
-        for (; blockPos.getY() > 3; blockPos = blockPos.below()) {
-            if (!world.isEmptyBlock(blockPos.below())) {
-                Block block = world.getBlockState(blockPos.below()).getBlock();
-                if (block == DesolationBlocks.CHARRED_SOIL) {
-                    break;
-                }
+        boolean grounded = false;
+        for (int i = 0; i <= MAX_DESCENT; ++i) {
+            Block block = world.getBlockState(blockPos.below()).getBlock();
+            if (block == DesolationBlocks.CHARRED_SOIL) {
+                grounded = true;
+                break;
             }
+            if (blockPos.getY() <= world.getMinY() + 1) {
+                break;
+            }
+            blockPos = blockPos.below();
         }
 
-        if (blockPos.getY() <= 3 && random.nextDouble() > 0.32) {
+        if (!grounded) {
             return false;
         } else if (world.isFluidAtPosition(blockPos, fluidState -> !fluidState.isEmpty())) {
             return false;
