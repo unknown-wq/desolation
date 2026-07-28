@@ -1,5 +1,6 @@
 {
   "music_disc.ashes": {
+    "subtitle": "subtitles.desolation.music_disc.ashes",
     "sounds": [
       {
         "name": "desolation:records/ashes",
@@ -8,35 +9,27 @@
     ]
   },
   "block.ember_pop1": {
+    "subtitle": "subtitles.desolation.block.ember_pop",
     "sounds": [
-      {
-        "name": "desolation:block/ember_pop1",
-        "stream": true
-      }
+      "desolation:block/ember_pop1"
     ]
   },
   "block.ember_pop2": {
+    "subtitle": "subtitles.desolation.block.ember_pop",
     "sounds": [
-      {
-        "name": "desolation:block/ember_pop2",
-        "stream": true
-      }
+      "desolation:block/ember_pop2"
     ]
   },
   "block.ember_pop3": {
+    "subtitle": "subtitles.desolation.block.ember_pop",
     "sounds": [
-      {
-        "name": "desolation:block/ember_pop3",
-        "stream": true
-      }
+      "desolation:block/ember_pop3"
     ]
   },
   "block.ember_pop4": {
+    "subtitle": "subtitles.desolation.block.ember_pop",
     "sounds": [
-      {
-        "name": "desolation:block/ember_pop4",
-        "stream": true
-      }
+      "desolation:block/ember_pop4"
     ]
   }
 }

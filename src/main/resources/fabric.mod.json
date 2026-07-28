@@ -23,7 +23,8 @@
       "raltsmc.desolation.Desolation"
     ],
     "client": [
-      "raltsmc.desolation.init.client.DesolationClient"
+      "raltsmc.desolation.init.client.DesolationClient",
+      "raltsmc.desolation.client.weather.DesolationAtmosphereClient"
     ],
     "fabric-datagen": [
       "raltsmc.desolation.data.DesolationDatagen"

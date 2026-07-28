@@ -65,6 +65,9 @@
   "potion.cinder_soul.tooltip_a": "Дар Огненного Рывка",
   "potion.cinder_soul.tooltip_b": "Дар Огнестойкости",
 
+  "subtitles.desolation.block.ember_pop": "Треск тлеющего угля",
+  "subtitles.desolation.music_disc.ashes": "Играет «Ashes»",
+
   "text.autoconfig.desolation.title": "Настройки мода 'Desolation'",
   "text.autoconfig.desolation.category.default": "Основное",
   "text.autoconfig.desolation.category.generation": "Генерация",
@@ -73,5 +76,10 @@
   "text.autoconfig.desolation.option.charredForestChance": "Шанс Генерации Выженного Леса",
   "text.autoconfig.desolation.option.smallCharredForestChance": "Шанс Генерации Небольшого Выженного Леса",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Шанс Генерации Выженной Лесной Поляны",
-  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны"
+  "text.autoconfig.desolation.option.generateClearings": "Генерация Поляны",
+  "text.autoconfig.desolation.option.clusterFeatures": "Группировать Объекты в Выгоревшие Пятна",
+  "text.autoconfig.desolation.option.hotspotDensityScale": "Плотность Выгоревших Пятен",
+  "text.autoconfig.desolation.option.ashRainDensity": "Плотность Пепельного Дождя",
+  "text.autoconfig.desolation.option.postFxHeatHaze": "Марево над Углями",
+  "text.autoconfig.desolation.option.postFxHeatHazeStrength": "Сила Марева"
 }

@@ -71,6 +71,9 @@
   "potion.cinder_soul.tooltip_a": "Grants Cinder Dash",
   "potion.cinder_soul.tooltip_b": "Grants Fire Resistance",
 
+  "subtitles.desolation.block.ember_pop": "Ember pops",
+  "subtitles.desolation.music_disc.ashes": "Ashes plays",
+
   "tag.item.desolation.charred_logs": "Desolation Charred Logs",
 
   "text.autoconfig.desolation.title": "Desolation Config",
@@ -82,6 +85,11 @@
   "text.autoconfig.desolation.option.smallCharredForestChance": "Small Charred Forest Chance",
   "text.autoconfig.desolation.option.charredForestClearingChance": "Charred Forest Clearing Chance",
   "text.autoconfig.desolation.option.generateClearings": "Generate Clearings",
+  "text.autoconfig.desolation.option.clusterFeatures": "Cluster Features Into Burn Scars",
+  "text.autoconfig.desolation.option.hotspotDensityScale": "Burn Scar Density",
+  "text.autoconfig.desolation.option.ashRainDensity": "Ash Rain Density",
+  "text.autoconfig.desolation.option.postFxHeatHaze": "Heat Haze Over Embers",
+  "text.autoconfig.desolation.option.postFxHeatHazeStrength": "Heat Haze Strength",
 
   "desolation.modmenu.modrinth": "Modrinth",
   "desolation.modmenu.curseforge": "CurseForge"
